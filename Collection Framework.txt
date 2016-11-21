@@ -1,0 +1,826 @@
+
+Java Collection framework provides many interfaces 
+
+Set, List, Queue, Deque etc.
+
+Collection classes 
+ArrayList, Vector, LinkedList, PriorityQueue, HashSet, LinkedHashSet, TreeSet 
+
+There are many methods declared in the Collection interface. They are as follows:
+
+No.	Method	Description
+1	public boolean add(Object element)	is used to insert an element in this collection.
+2	public boolean addAll(collection c)	is used to insert the specified collection elements in the invoking collection.
+3	public boolean remove(Object element)	is used to delete an element from this collection.
+4	public boolean removeAll(Collection c)	is used to delete all the elements of specified collection from the invoking collection.
+5	public boolean retainAll(Collection c)	is used to delete all the elements of invoking collection except the specified collection.
+6	public int size()	return the total number of elements in the collection.
+7	public void clear()	removes the total no of element from the collection.
+8	public boolean contains(object element)	is used to search an element.
+9	public boolean containsAll(Collection c)	is used to search the specified collection in this collection.
+10	public Iterator iterator()	returns an iterator.
+11	public Object[] toArray()	converts collection into array.
+12	public boolean isEmpty()	checks if collection is empty.
+13	public boolean equals(Object element)	matches two collection.
+14	public int hashCode()	returns the hashcode number for collection.
+
+Iterator interface
+
+Iterator interface provides the facility of iterating the elements in forward direction only.
+Methods of Iterator interface
+
+There are only three methods in the Iterator interface. They are:
+
+public boolean hasNext() it returns true if iterator has more elements.
+public object next() it returns the element and moves the cursor pointer to the next element.
+public void remove() it removes the last elements returned by the iterator. It is rarely used.
+
+
+Java ArrayList class
+
+Java ArrayList class uses a dynamic array for storing the elements.It extends AbstractList class and implements List interface.
+Java ArrayList class can contain duplicate elements.
+Java ArrayList class maintains insertion order.
+Java ArrayList class is non synchronized.
+Java ArrayList allows random access because array works at the index basis.
+In Java ArrayList class, manipulation is slow because a lot of shifting needs to be occurred if any element is removed from the array list.
+
+
+
+Java Non-generic Vs Generic Collection
+
+Java collection framework was non-generic before JDK 1.5. Since 1.5, it is generic.
+
+Java new generic collection allows you to have only one type of object in collection. Now it is type safe so typecasting is not required at run time.
+
+Let's see the old non-generic example of creating java collection.
+
+ArrayList al=new ArrayList();//creating old non-generic arraylist  
+Let's see the new generic example of creating java collection.
+
+ArrayList<String> al=new ArrayList<String>();//creating new generic arraylist  
+In generic collection, we specify the type in angular braces. Now ArrayList is forced to have only specified type of objects in it. If you try to add another type of object, it gives compile time error.
+
+For more information of java generics, click here Java Generics Tutorial.
+
+Example of Java ArrayList class
+
+import java.util.*;  
+class TestCollection1{  
+ public static void main(String args[]){  
+   
+  ArrayList<String> al=new ArrayList<String>();//creating arraylist  
+  al.add("Ravi");//adding object in arraylist  
+  al.add("Vijay");  
+  al.add("Ravi");  
+  al.add("Ajay");  
+  
+  Iterator itr=al.iterator();//getting Iterator from arraylist to traverse elements  
+  while(itr.hasNext()){  
+   System.out.println(itr.next());  
+  }  
+ }  
+}  
+
+
+
+
+Java LinkedList class
+
+Java LinkedList class uses doubly linked list to store the elements. It extends the AbstractList class and implements List and Deque interfaces.
+Java LinkedList class can contain duplicate elements.
+Java LinkedList class maintains insertion order.
+Java LinkedList class is non synchronized.
+In Java LinkedList class, manipulation is fast because no shifting needs to be occurred.
+Java LinkedList class can be used as list, stack or queue.
+java LinkedList class in collection framework
+
+Java LinkedList Example
+
+import java.util.*;  
+public class TestCollection7{  
+ public static void main(String args[]){  
+   
+  LinkedList<String> al=new LinkedList<String>();  
+  al.add("Ravi");  
+  al.add("Vijay");  
+  al.add("Ravi");  
+  al.add("Ajay");  
+  
+  Iterator<String> itr=al.iterator();  
+  while(itr.hasNext()){  
+   System.out.println(itr.next());  
+  }  
+ }  
+}  
+
+
+Difference between ArrayList and LinkedList
+
+ArrayList and LinkedList both implements List interface and maintains insertion order. Both are non synchronized classes.
+
+But there are many differences between ArrayList and LinkedList classes that are given below.
+
+ArrayList	LinkedList
+1) ArrayList internally uses dynamic array to store the elements.	LinkedList internally uses doubly linked list to store the elements.
+2) Manipulation with ArrayList is slow because it internally uses array. If any element is removed from the array, all the bits are shifted in memory.	Manipulation with LinkedList is faster than ArrayList because it uses doubly linked list so no bit shifting is required in memory.
+3) ArrayList class can act as a list only because it implements List only.	LinkedList class can act as a list and queue both because it implements
+ List and Deque interfaces.
+4) ArrayList is better for storing and accessing data.	LinkedList is better for manipulating data.
+Example of ArrayList and LinkedList in Java
+
+Let's see a simple example where we are using ArrayList and LinkedList both.
+
+import java.util.*;    
+class TestArrayLinked{    
+ public static void main(String args[]){    
+     
+  List<String> al=new ArrayList<String>();//creating arraylist    
+  al.add("Ravi");//adding object in arraylist    
+  al.add("Vijay");    
+  al.add("Ravi");    
+  al.add("Ajay");    
+    
+  List<String> al2=new LinkedList<String>();//creating linkedlist    
+  al2.add("James");//adding object in linkedlist    
+  al2.add("Serena");    
+  al2.add("Swati");    
+  al2.add("Junaid");    
+    
+  System.out.println("arraylist: "+al);  
+  System.out.println("linkedlist: "+al2);  
+ }    
+}    
+
+
+
+Java List Interface
+
+List Interface is the subinterface of Collection.It contains methods to insert and delete elements in index basis.It is a factory of ListIterator interface.
+
+Commonly used methods of List Interface:
+
+public void add(int index,Object element);
+public boolean addAll(int index,Collection c);
+public object get(int Index position);
+public object set(int index,Object element);
+public object remove(int index);
+public ListIterator listIterator();
+public ListIterator listIterator(int i);
+Java ListIterator Interface
+
+ListIterator Interface is used to traverse the element in backward and forward direction.
+
+Commonly used methods of ListIterator Interface:
+
+public boolean hasNext();
+public Object next();
+public boolean hasPrevious();
+public Object previous();
+Example of ListIterator Interface:
+
+import java.util.*;  
+public class TestCollection8{  
+public static void main(String args[]){  
+  
+ArrayList<String> al=new ArrayList<String>();  
+al.add("Amit");  
+al.add("Vijay");  
+al.add("Kumar");  
+al.add(1,"Sachin");  
+  
+System.out.println("element at 2nd position: "+al.get(2));  
+  
+ListIterator<String> itr=al.listIterator();  
+  
+System.out.println("traversing elements in forward direction...");  
+while(itr.hasNext()){  
+System.out.println(itr.next());  
+ }  
+  
+  
+System.out.println("traversing elements in backward direction...");  
+while(itr.hasPrevious()){  
+System.out.println(itr.previous());  
+ }  
+}  
+}  
+
+
+Java HashSet class
+
+uses hashtable to store the elements.It extends AbstractSet class and implements Set interface.
+contains unique elements only.
+Difference between List and Set:
+
+List can contain duplicate elements whereas Set contains unique elements only.
+
+Hierarchy of HashSet class:
+
+HashSet class hierarchy
+Example of HashSet class:
+
+import java.util.*;  
+class TestCollection9{  
+ public static void main(String args[]){  
+   
+  HashSet<String> al=new HashSet<String>();  
+  al.add("Ravi");  
+  al.add("Vijay");  
+  al.add("Ravi");  
+  al.add("Ajay");  
+  
+  Iterator<String> itr=al.iterator();  
+  while(itr.hasNext()){  
+   System.out.println(itr.next());  
+  }  
+ }  
+}  
+
+
+Java TreeSet class
+
+contains unique elements only like HashSet. The TreeSet class implements NavigableSet interface that extends the SortedSet interface.
+maintains ascending order.
+Hierarchy of TreeSet class:
+
+TreeSet class hierarchy
+Example of TreeSet class:
+
+import java.util.*;  
+class TestCollection11{  
+ public static void main(String args[]){  
+   
+  TreeSet<String> al=new TreeSet<String>();  
+  al.add("Ravi");  
+  al.add("Vijay");  
+  al.add("Ravi");  
+  al.add("Ajay");  
+  
+  Iterator<String> itr=al.iterator();  
+  while(itr.hasNext()){  
+   System.out.println(itr.next());  
+  }  
+ }  
+}  
+
+Java Queue Interface
+
+The Queue interface basically orders the element in FIFO(First In First Out)manner.
+
+Methods of Queue Interface :
+
+public boolean add(object);
+public boolean offer(object);
+public remove();
+public poll();
+public element();
+public peek();
+PriorityQueue class:
+
+The PriorityQueue class provides the facility of using queue. But it does not orders the elements in FIFO manner.
+
+Example of PriorityQueue:
+
+import java.util.*;  
+class TestCollection12{  
+public static void main(String args[]){  
+  
+PriorityQueue<String> queue=new PriorityQueue<String>();  
+queue.add("Amit");  
+queue.add("Vijay");  
+queue.add("Karan");  
+queue.add("Jai");  
+queue.add("Rahul");  
+  
+System.out.println("head:"+queue.element());  
+System.out.println("head:"+queue.peek());  
+  
+System.out.println("iterating the queue elements:");  
+Iterator itr=queue.iterator();  
+while(itr.hasNext()){  
+System.out.println(itr.next());  
+}  
+  
+queue.remove();  
+queue.poll();  
+  
+System.out.println("after removing two elements:");  
+Iterator<String> itr2=queue.iterator();  
+while(itr2.hasNext()){  
+System.out.println(itr2.next());  
+}  
+  
+}  
+}  
+
+
+Java Map Interface
+
+A map contains values based on the key i.e. key and value pair.Each pair is known as an entry.Map contains only unique elements.
+
+Commonly used methods of Map interface:
+
+public Object put(object key,Object value): is used to insert an entry in this map.
+public void putAll(Map map):is used to insert the specified map in this map.
+public Object remove(object key):is used to delete an entry for the specified key.
+public Object get(Object key):is used to return the value for the specified key.
+public boolean containsKey(Object key):is used to search the specified key from this map.
+public boolean containsValue(Object value):is used to search the specified value from this map.
+public Set keySet():returns the Set view containing all the keys.
+public Set entrySet():returns the Set view containing all the keys and values.
+Entry
+
+Entry is the subinterface of Map.So we will access it by Map.Entry name.It provides methods to get key and value.
+
+Methods of Entry interface:
+
+public Object getKey(): is used to obtain key.
+public Object getValue():is used to obtain value.
+
+
+Java HashMap class
+
+A HashMap contains values based on the key. It implements the Map interface and extends AbstractMap class.
+It contains only unique elements.
+It may have one null key and multiple null values.
+It maintains no order.
+Hierarchy of HashMap class:
+
+HashMap class hierarchy
+Example of HashMap class:
+
+import java.util.*;  
+class TestCollection13{  
+ public static void main(String args[]){  
+   
+  HashMap<Integer,String> hm=new HashMap<Integer,String>();  
+  
+  hm.put(100,"Amit");  
+  hm.put(101,"Vijay");  
+  hm.put(102,"Rahul");  
+  
+  for(Map.Entry m:hm.entrySet()){  
+   System.out.println(m.getKey()+" "+m.getValue());  
+  }  
+ }  
+}  
+
+
+Java LinkedHashMap class
+
+A LinkedHashMap contains values based on the key. It implements the Map interface and extends HashMap class.
+It contains only unique elements.
+It may have one null key and multiple null values.
+It is same as HashMap instead maintains insertion order.
+Hierarchy of LinkedHashMap class:
+
+LinkedHashMap class hierarchy
+Example of LinkedHashMap class:
+
+import java.util.*;  
+class TestCollection14{  
+ public static void main(String args[]){  
+   
+  LinkedHashMap<Integer,String> hm=new LinkedHashMap<Integer,String>();  
+  
+  hm.put(100,"Amit");  
+  hm.put(101,"Vijay");  
+  hm.put(102,"Rahul");  
+  
+for(Map.Entry m:hm.entrySet()){  
+   System.out.println(m.getKey()+" "+m.getValue());  
+  }  
+ }  
+}  
+
+
+Java TreeMap class
+
+A TreeMap contains values based on the key. It implements the NavigableMap interface and extends AbstractMap class.
+It contains only unique elements.
+It cannot have null key but can have multiple null values.
+It is same as HashMap instead maintains ascending order.
+Hierarchy of TreeMap class:
+
+TreeMap class hierarchy
+Example of TreeMap class:
+
+import java.util.*;  
+class TestCollection15{  
+ public static void main(String args[]){  
+   
+  TreeMap<Integer,String> hm=new TreeMap<Integer,String>();  
+  
+  hm.put(100,"Amit");  
+  hm.put(102,"Ravi");  
+  hm.put(101,"Vijay");  
+  hm.put(103,"Rahul");  
+  
+  for(Map.Entry m:hm.entrySet()){  
+   System.out.println(m.getKey()+" "+m.getValue());  
+  }  
+ }  
+}  
+
+
+Java Hashtable class
+
+A Hashtable is an array of list.Each list is known as a bucket.The position of bucket is identified by calling the hashcode() method.A Hashtable 
+contains values based on the key. It implements the Map interface and extends Dictionary class.
+It contains only unique elements.
+It may have not have any null key or value.
+It is synchronized.
+Example of Hashtable:
+
+import java.util.*;  
+class TestCollection16{  
+ public static void main(String args[]){  
+   
+  Hashtable<Integer,String> hm=new Hashtable<Integer,String>();  
+  
+  hm.put(100,"Amit");  
+  hm.put(102,"Ravi");  
+  hm.put(101,"Vijay");  
+  hm.put(103,"Rahul");  
+  
+  for(Map.Entry m:hm.entrySet()){  
+   System.out.println(m.getKey()+" "+m.getValue());  
+  }  
+ }  
+}  
+
+
+Difference between HashMap and Hashtable
+
+HashMap and Hashtable both are used to store data in key and value form. Both are using hashing technique to store unique keys.
+
+But there are many differences between HashMap and Hashtable classes that are given below.
+
+HashMap	Hashtable
+
+1) HashMap is non synchronized. It is not-thread safe and can't be shared between many threads without proper synchronization code.	
+Hashtable is synchronized. It is thread-safe and can be shared with many threads.
+2) HashMap allows one null key and multiple null values.	Hashtable doesn't allow any null key or value.
+3) HashMap is a new class introduced in JDK 1.2.	Hashtable is a legacy class.
+4) HashMap is fast.	Hashtable is slow.
+5) We can make the HashMap as synchronized by calling this code
+Map m = Collections.synchronizedMap(hashMap);	Hashtable is internally synchronized and can't be unsynchronized.
+6) HashMap is traversed by Iterator.	Hashtable is traversed by Enumerator and Iterator.
+7) Iterator in HashMap is fail-fast.	Enumerator in Hashtable is not fail-fast.
+8) HashMap inherits AbstractMap class.	Hashtable inherits Dictionary class.
+
+
+Sorting
+
+We can sort the elements of:
+
+String objects
+Wrapper class objects
+
+
+Comparable interface
+
+Comparable interface is used to order the objects of user-defined class.This interface is found in java.lang package and contains only one 
+method named compareTo(Object).It provide only single sorting sequence i.e. you can sort the elements on based on single datamember only.
+For instance it may be either rollno,name,age or anything else.
+
+Syntax:
+
+public int compareTo(Object obj): is used to compare the current object with the specified object.
+We can sort the elements of:
+
+String objects
+Wrapper class objects
+User-defined class objects
+Collections class provides static methods for sorting the elements of collection.If collection elements are of Set type, we can use TreeSet.
+But We cannot sort the elements of List.Collections class provides methods for sorting the elements of List type elements.
+Method of Collections class for sorting List elements
+
+public void sort(List list): is used to sort the elements of List.List elements must be of Comparable type.
+Note: String class and Wrapper classes implements the Comparable interface.So if you store the objects of string or wrapper classes, it will be 
+Comparable.
+
+Example of Sorting the elements of List that contains user-defined class objects on age basis
+
+Student.java
+
+class Student implements Comparable{  
+int rollno;  
+String name;  
+int age;  
+Student(int rollno,String name,int age){  
+this.rollno=rollno;  
+this.name=name;  
+this.age=age;  
+}  
+  
+public int compareTo(Object obj){  
+Student st=(Student)obj;  
+if(age==st.age)  
+return 0;  
+else if(age>st.age)  
+return 1;  
+else  
+return -1;  
+}  
+  
+}  
+Simple.java
+
+import java.util.*;  
+import java.io.*;  
+  
+class TestSort3{  
+public static void main(String args[]){  
+  
+ArrayList al=new ArrayList();  
+al.add(new Student(101,"Vijay",23));  
+al.add(new Student(106,"Ajay",27));  
+al.add(new Student(105,"Jai",21));  
+  
+Collections.sort(al);  
+Iterator itr=al.iterator();  
+while(itr.hasNext()){  
+Student st=(Student)itr.next();  
+System.out.println(st.rollno+""+st.name+""+st.age);  
+  }  
+}  
+}  
+
+
+Comparator interface
+
+Comparator interface is used to order the objects of user-defined class.
+
+This interface is found in java.util package and contains 2 methods compare(Object obj1,Object obj2) and equals(Object element).
+
+It provides multiple sorting sequence i.e. you can sort the elements based on any data member. For instance it may be on rollno, name, age or anything else.
+
+Syntax of compare method
+
+public int compare(Object obj1,Object obj2): compares the first object with second object.
+
+Collections class provides static methods for sorting the elements of collection. If collection elements are of Set type, we can use TreeSet. But We cannot sort the elements of List. Collections class provides methods for sorting the elements of List type elements.
+
+Method of Collections class for sorting List elements
+
+public void sort(List list,Comparator c): is used to sort the elements of List by the given comparator.
+
+Example of sorting the elements of List that contains user-defined class objects on the basis of age and name
+
+In this example, we have created 4 java classes:
+
+Student.java
+AgeComparator.java
+NameComparator.java
+Simple.java
+Student.java
+This class contains three fields rollno, name and age and a parameterized constructor.
+
+class Student{  
+int rollno;  
+String name;  
+int age;  
+Student(int rollno,String name,int age){  
+this.rollno=rollno;  
+this.name=name;  
+this.age=age;  
+}  
+}  
+AgeComparator.java
+This class defines comparison logic based on the age. If age of first object is greater than the second, we are returning positive value, it can be any one such as 1, 2 , 10 etc. If age of first object is less than the second object, we are returning negative value, it can be any negative value and if age of both objects are equal, we are returning 0.
+
+import java.util.*;  
+class AgeComparator implements Comparator{  
+public int Compare(Object o1,Object o2){  
+Student s1=(Student)o1;  
+Student s2=(Student)o2;  
+  
+if(s1.age==s2.age)  
+return 0;  
+else if(s1.age>s2.age)  
+return 1;  
+else  
+return -1;  
+}  
+}  
+NameComparator.java
+This class provides comparison logic based on the name. In such case, we are using the compareTo() method of String class, which internally provides the comparison logic.
+
+import java.util.*;  
+class NameComparator implements Comparator{  
+public int Compare(Object o1,Object o2){  
+Student s1=(Student)o1;  
+Student s2=(Student)o2;  
+  
+return s1.name.compareTo(s2.name);  
+}  
+}  
+Simple.java
+In this class, we are printing the objects values by sorting on the basis of name and age.
+
+import java.util.*;  
+import java.io.*;  
+  
+class Simple{  
+public static void main(String args[]){  
+  
+ArrayList al=new ArrayList();  
+al.add(new Student(101,"Vijay",23));  
+al.add(new Student(106,"Ajay",27));  
+al.add(new Student(105,"Jai",21));  
+  
+System.out.println("Sorting by Name...");  
+  
+Collections.sort(al,new NameComparator());  
+Iterator itr=al.iterator();  
+while(itr.hasNext()){  
+Student st=(Student)itr.next();  
+System.out.println(st.rollno+" "+st.name+" "+st.age);  
+}  
+  
+System.out.println("sorting by age...");  
+  
+Collections.sort(al,new AgeComparator());  
+Iterator itr2=al.iterator();  
+while(itr2.hasNext()){  
+Student st=(Student)itr2.next();  
+System.out.println(st.rollno+" "+st.name+" "+st.age);  
+}  
+  
+  
+}  
+}  
+
+
+Properties class in Java
+
+The properties object contains key and value pair both as a string. It is the subclass of Hashtable.
+
+It can be used to get property value based on the property key. The Properties class provides methods to get data from properties file and store data into properties file. Moreover, it can be used to get properties of system.
+
+Advantage of properties file
+
+Easy Maintenance: If any information is changed from the properties file, you don't need to recompile the java class. It is mainly used to contain variable information i.e. to be changed.
+
+Methods of Properties class
+
+The commonly used methods of Properties class are given below.
+
+Method	Description
+public void load(Reader r)	loads data from the Reader object.
+public void load(InputStream is)	loads data from the InputStream object
+public String getProperty(String key)	returns value based on the key.
+public void setProperty(String key,String value)	sets the property in the properties object.
+public void store(Writer w, String comment)	writers the properties in the writer object.
+public void store(OutputStream os, String comment)	writes the properties in the OutputStream object.
+storeToXML(OutputStream os, String comment)	writers the properties in the writer object for generating xml document.
+public void storeToXML(Writer w, String comment, String encoding)	writers the properties in the writer object for generating xml document with specified encoding.
+Example of Properties class to get information from properties file
+
+To get information from the properties file, create the properties file first.
+
+db.properties
+user=system  
+password=oracle  
+Now, lets create the java class to read the data from the properties file.
+
+Test.java
+import java.util.*;  
+import java.io.*;  
+public class Test {  
+public static void main(String[] args)throws Exception{  
+    FileReader reader=new FileReader("db.properties");  
+      
+    Properties p=new Properties();  
+    p.load(reader);  
+      
+    System.out.println(p.getProperty("user"));  
+    System.out.println(p.getProperty("password"));  
+}  
+}  
+Output:system
+       oracle
+Now if you change the value of the properties file, you don't need to compile the java class again. That means no maintenance problem.
+
+Example of Properties class to get all the system properties
+
+By System.getProperties() method we can get all the properties of system. Let's create the class that gets information from the system properties.
+
+Test.java
+import java.util.*;  
+import java.io.*;  
+public class Test {  
+public static void main(String[] args)throws Exception{  
+  
+Properties p=System.getProperties();  
+Set set=p.entrySet();  
+  
+Iterator itr=set.iterator();  
+while(itr.hasNext()){  
+Map.Entry entry=(Map.Entry)itr.next();  
+System.out.println(entry.getKey()+" = "+entry.getValue());  
+}  
+  
+}  
+}  
+Output:
+java.runtime.name = Java(TM) SE Runtime Environment
+sun.boot.library.path = C:\Program Files\Java\jdk1.7.0_01\jre\bin
+java.vm.version = 21.1-b02
+java.vm.vendor = Oracle Corporation
+java.vendor.url = http://java.oracle.com/
+path.separator = ;
+java.vm.name = Java HotSpot(TM) Client VM
+file.encoding.pkg = sun.io
+user.country = US
+user.script = 
+sun.java.launcher = SUN_STANDARD
+...........
+Example of Properties class to create properties file
+
+Now lets write the code to create the properties file.
+
+Test.java
+import java.util.*;  
+import java.io.*;  
+public class Test {  
+public static void main(String[] args)throws Exception{  
+  
+Properties p=new Properties();  
+p.setProperty("name","Sonoo Jaiswal");  
+p.setProperty("email","sonoojaiswal@javatpoint.com");  
+  
+p.store(new FileWriter("info.properties"),"Javatpoint Properties Example");  
+  
+}  
+}  
+Let's see the generated properties file.
+
+info.properties
+#Javatpoint Properties Example  
+#Thu Oct 03 22:35:53 IST 2013  
+email=sonoojaiswal@javatpoint.com  
+name=Sonoo Jaiswal  
+
+
+
+
+Difference between ArrayList and Vector
+
+ArrayList and Vector both implements List interface and maintains insertion order.
+
+But there are many differences between ArrayList and Vector classes that are given below.
+
+ArrayList	Vector
+1) ArrayList is not synchronized.	Vector is synchronized.
+2) ArrayList increments 50% of current array size if number of element exceeds from its capacity.	Vector increments 100% means doubles the array size if total number of element exceeds than its capacity.
+3) ArrayList is not a legacy class, it is introduced in JDK 1.2.	Vector is a legacy class.
+4) ArrayList is fast because it is non-synchronized.	Vector is slow because it is synchronized i.e. in multithreading environment, it will hold the other threads in runnable or non-runnable state until current thread releases the lock of object.
+5) ArrayList uses Iterator interface to traverse the elements.	Vector uses Enumeration interface to traverse the elements. But it can use Iterator also.
+Example of Java ArrayList
+
+Let's see a simple example where we are using ArrayList to store and traverse the elements.
+
+import java.util.*;    
+class TestArrayList21{    
+ public static void main(String args[]){    
+     
+  List<String> al=new ArrayList<String>();//creating arraylist    
+  al.add("Sonoo");//adding object in arraylist    
+  al.add("Michael");    
+  al.add("James");    
+  al.add("Andy");    
+  //traversing elements using Iterator  
+  Iterator itr=al.iterator();  
+  while(itr.hasNext()){  
+   System.out.println(itr.next());  
+  }    
+ }    
+}    
+Test it Now
+Output:
+
+Sonoo
+Michael
+James
+Andy
+Example of Java Vector
+
+Let's see a simple example of java Vector class that uses Enumeration interface.
+
+import java.util.*;      
+class TestVector1{      
+ public static void main(String args[]){      
+  Vector<String> v=new Vector<String>();//creating vector  
+  v.add("umesh");//method of Collection  
+  v.addElement("irfan");//method of Vector  
+  v.addElement("kumar");  
+  //traversing elements using Enumeration  
+  Enumeration e=v.elements();  
+  while(e.hasMoreElements()){  
+   System.out.println(e.nextElement());  
+  }  
+ }      
+}      

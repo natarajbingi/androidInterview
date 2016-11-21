@@ -1,0 +1,718 @@
+
+AsyncTask is a great thing to run complex tasks in another thread.
+
+But when there is an orientation change or another configuration change while the AsyncTask is still running, the current activity is destroyed and restarted. And as the instance of AsyncTask is connected to that activity, it fails and causes a "force close" message window.
+
+So I am looking for some kind of "best-practice" to avoid these errors and prevent AsyncTask from failing.
+
+What I've seen so far is:
+
+Disable orientation changes. / For sure not the way you should handle this.
+Letting the task survive and updating it with the new activity instance via onRetainNonConfigurationInstance
+Just canceling the task when the activity is destroyed and restarting it when the activity is created again.
+Binding the task to the application class instead of the activity instance.
+Some method used in the "shelves" project (via onRestoreInstanceState)
+Some code examples:
+
+Android AsyncTasks during a screen rotation, Part I and Part II
+
+I usually solve this by having my AsyncTasks fire broadcast Intents in the .onPostExecute() callback, so they don't modify the Activity that started them directly. The Activities listen to these broadcasts with dynamic BroadcastReceivers and act accordingly.
+
+This way the AsyncTasks don't have to care about the specific Activity instance that handles their result. They just "shout" when they're finished, and if an Activity is around that time (is active and focused / is in it's resumed state) which is interested in the results of the task, then it will be handled.
+
+This involves a bit more overhead, since the runtime needs to handle the broadcast, but I usually don't mind. I think using the LocalBroadcastManager instead of the default system wide one speeds things up a bit.
+e solution that offers less coupling between activities and fragments –  Roger Garzon Nieto Nov 22 '13 at 20:21 
+1	 	
+This might be part of a solution but it doesn't seem like it would solve the problem of the AsyncTask getting recreated after the orientation change. –  miguel Dec 28 '13 at 1:58 
+1	 	
+
+
+Start with a basic AsyncTask as an inner class of an activity (it doesn't need to be an inner class but it will probably be convenient to be). At this stage the AsyncTask does not handle runtime configuration changes.
+
+public class ThreadsActivity extends ActionBarActivity {
+
+    private ImageView mPictureImageView;
+
+    private class LoadImageFromNetworkAsyncTask
+                          extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            return loadImageFromNetwork(urls[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            mPictureImageView.setImageBitmap(bitmap);
+        }
+    }
+
+    /**
+     * Requires in AndroidManifext.xml
+     *  <uses-permission android:name="android.permission.INTERNET" />
+     */
+    private Bitmap loadImageFromNetwork(String url) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream((InputStream)
+                                          new URL(url).getContent());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_threads);
+
+        mPictureImageView =
+            (ImageView) findViewById(R.id.imageView_picture);
+    }
+
+    public void getPicture(View view) {
+        new LoadImageFromNetworkAsyncTask()
+            .execute("http://i.imgur.com/SikTbWe.jpg");
+    }
+
+}
+Add a nested class RetainedFragment that extends the Fragement class and doesn't have it's own UI. Add setRetainInstance(true) to the onCreate event of this Fragment. Provide procedures to set and get your data.
+
+public class ThreadsActivity extends Activity {
+
+    private ImageView mPictureImageView;
+    private RetainedFragment mRetainedFragment = null;
+    ...
+
+    public static class RetainedFragment extends Fragment {
+
+        private Bitmap mBitmap;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // The key to making data survive
+            // runtime configuration changes.
+            setRetainInstance(true);
+        }
+
+        public Bitmap getData() {
+            return this.mBitmap;
+        }
+
+        public void setData(Bitmap bitmapToRetain) {
+            this.mBitmap = bitmapToRetain;
+        }
+    }
+
+    private class LoadImageFromNetworkAsyncTask
+                    extends AsyncTask<String, Integer,Bitmap> {
+    ....
+In the outermost Activity class's onCreate() handle the RetainedFragment: Reference it if it already exists (in case the Activity is restarting); create and add it if it doesn't exist; Then, if it already existed, get data from the RetainedFragment and set your UI with that data.
+
+public class ThreadsActivity extends Activity {
+
+    ...
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_threads);
+
+        final String retainedFragmentTag = "RetainedFragmentTag";
+
+        mPictureImageView =
+                  (ImageView) findViewById(R.id.imageView_picture);
+        mLoadingProgressBar =
+                (ProgressBar) findViewById(R.id.progressBar_loading);
+
+        // Find the RetainedFragment on Activity restarts
+        FragmentManager fm = getFragmentManager();
+        // The RetainedFragment has no UI so we must
+        // reference it with a tag.
+        mRetainedFragment =
+          (RetainedFragment) fm.findFragmentByTag(retainedFragmentTag);
+
+        // if Retained Fragment doesn't exist create and add it.
+        if (mRetainedFragment == null) {
+
+            // Add the fragment
+            mRetainedFragment = new RetainedFragment();
+            fm.beginTransaction()
+                .add(mRetainedFragment, retainedFragmentTag).commit();
+
+        // The Retained Fragment exists
+        } else {
+
+            mPictureImageView
+                .setImageBitmap(mRetainedFragment.getData());
+        }
+    }
+Initiate the AsyncTask from the UI
+
+public void getPicture(View view) {
+    new LoadImageFromNetworkAsyncTask().execute(
+            "http://i.imgur.com/SikTbWe.jpg");
+}
+Add and code a determinate progress bar:
+
+Add a progress bar to the UI layout;
+Get a reference to it in the Activity oncreate();
+Make it visible and invisble at the start and end of the process;
+Define the progress to report to UI in onProgressUpdate.
+Change the AsyncTask 2nd Generic parameter from Void to a type that can handle progress updates (e.g. Integer).
+publishProgress at regular points in doInBackground().
+All the code for the above procedure
+
+Activity Layout.
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.mysecondapp.ThreadsActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <ImageView
+            android:id="@+id/imageView_picture"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:background="@android:color/black" />
+
+        <Button
+            android:id="@+id/button_get_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/imageView_picture"
+            android:onClick="getPicture"
+            android:text="Get Picture" />
+
+        <Button
+            android:id="@+id/button_clear_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/button_get_picture"
+            android:layout_toEndOf="@id/button_get_picture"
+            android:layout_toRightOf="@id/button_get_picture"
+            android:onClick="clearPicture"
+            android:text="Clear Picture" />
+
+        <ProgressBar
+            android:id="@+id/progressBar_loading"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button_get_picture"
+            android:progress="0"
+            android:indeterminateOnly="false"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+</ScrollView>
+The Activity with: subclassed AsyncTask inner class; subclassed RetainedFragment inner class that handles runtime configuration changes (e.g. when the user rotates the screen); and a determinate progress bar updating at regular intervals. ...
+
+public class ThreadsActivity extends Activity {
+
+    private ImageView mPictureImageView;
+    private RetainedFragment mRetainedFragment = null;
+    private ProgressBar mLoadingProgressBar;
+
+    public static class RetainedFragment extends Fragment {
+
+        private Bitmap mBitmap;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // The key to making data survive runtime configuration changes.
+            setRetainInstance(true);
+        }
+
+        public Bitmap getData() {
+            return this.mBitmap;
+        }
+
+        public void setData(Bitmap bitmapToRetain) {
+            this.mBitmap = bitmapToRetain;
+        }
+    }
+
+    private class LoadImageFromNetworkAsyncTask extends AsyncTask<String,
+            Integer, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            // Simulate a burdensome load.
+            int sleepSeconds = 4;
+            for (int i = 1; i <= sleepSeconds; i++) {
+                SystemClock.sleep(1000); // milliseconds
+                publishProgress(i * 20); // Adjust for a scale to 100
+            }
+
+            return com.example.standardapplibrary.android.Network
+                    .loadImageFromNetwork(
+                    urls[0]);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            mLoadingProgressBar.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            publishProgress(100);
+            mRetainedFragment.setData(bitmap);
+            mPictureImageView.setImageBitmap(bitmap);
+            mLoadingProgressBar.setVisibility(View.INVISIBLE);
+            publishProgress(0);
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_threads);
+
+        final String retainedFragmentTag = "RetainedFragmentTag";
+
+        mPictureImageView = (ImageView) findViewById(R.id.imageView_picture);
+        mLoadingProgressBar = (ProgressBar) findViewById(R.id.progressBar_loading);
+
+        // Find the RetainedFragment on Activity restarts
+        FragmentManager fm = getFragmentManager();
+        // The RetainedFragment has no UI so we must reference it with a tag.
+        mRetainedFragment = (RetainedFragment) fm.findFragmentByTag(
+                retainedFragmentTag);
+
+        // if Retained Fragment doesn't exist create and add it.
+        if (mRetainedFragment == null) {
+
+            // Add the fragment
+            mRetainedFragment = new RetainedFragment();
+            fm.beginTransaction().add(mRetainedFragment,
+                                      retainedFragmentTag).commit();
+
+            // The Retained Fragment exists
+        } else {
+
+            mPictureImageView.setImageBitmap(mRetainedFragment.getData());
+        }
+    }
+
+    public void getPicture(View view) {
+        mLoadingProgressBar.setVisibility(View.VISIBLE);
+        new LoadImageFromNetworkAsyncTask().execute(
+                "http://i.imgur.com/SikTbWe.jpg");
+    }
+
+    public void clearPicture(View view) {
+        mRetainedFragment.setData(null);
+        mPictureImageView.setImageBitmap(null);
+    }
+}
+In this example the library function (referenced above with the explicit package prefix com.example.standardapplibrary.android.Network) that does real work ...
+
+public static Bitmap loadImageFromNetwork(String url) {
+    Bitmap bitmap = null;
+    try {
+        bitmap = BitmapFactory.decodeStream((InputStream) new URL(url)
+                .getContent());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return bitmap;
+}
+Add any permissions that your background task requires to the AndroidManifest.xml ...
+
+<manifest>
+...
+    <uses-permission android:name="android.permission.INTERNET" />
+Add your activity to AndroidManifest.xml ...
+
+<manifest>
+...
+    <application>
+        <activity
+            android:name=".ThreadsActivity"
+            android:label="@string/title_activity_threads"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.mysecondapp.MainActivity" />
+        </activity>
+shareimprove this answer
+edited Aug 11 '14 at 11:25
+
+
+
+This way the rotation is handled, and if the activity goes to background during the async task execution, the activity will receive the callbacks (onPreExecute, onProgressUpdate, onPostExecute & onCancelled) once resumed, so no IllegalStateException will be thrown (see How to handle Handler messages when activity/fragment is paused).
+
+It would be great to have the same but with generic arguments types, like an AsyncTask (eg: AsyncTaskFragment<Params, Progress, Result>), but I did not manage to do it quickly and have no time at the moment. If anyone want to do the improvement, please feel free !
+
+The code:
+
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
+
+public class AsyncTaskFragment extends Fragment {
+
+    /* ------------------------------------------------------------------------------------------ */
+    // region Classes & Interfaces
+
+    public static abstract class Task extends AsyncTask<Object, Object, Object> {
+
+        private AsyncTaskFragment _fragment;
+
+        private void setFragment(AsyncTaskFragment fragment) {
+
+            _fragment = fragment;
+        }
+
+        @Override
+        protected final void onPreExecute() {
+
+            // Save the state :
+            _fragment.setRunning(true);
+
+            // Send a message :
+            sendMessage(ON_PRE_EXECUTE_MESSAGE, null);
+        }
+
+        @Override
+        protected final void onPostExecute(Object result) {
+
+            // Save the state :
+            _fragment.setRunning(false);
+
+            // Send a message :
+            sendMessage(ON_POST_EXECUTE_MESSAGE, result);
+        }
+
+        @Override
+        protected final void onProgressUpdate(Object... values) {
+
+            // Send a message :
+            sendMessage(ON_PROGRESS_UPDATE_MESSAGE, values);
+        }
+
+        @Override
+        protected final void onCancelled() {
+
+            // Save the state :
+            _fragment.setRunning(false);
+
+            // Send a message :
+            sendMessage(ON_CANCELLED_MESSAGE, null);
+        }
+
+        private void sendMessage(int what, Object obj) {
+
+            Message message = new Message();
+            message.what = what;
+            message.obj = obj;
+
+            Bundle data = new Bundle(1);
+            data.putString(EXTRA_FRAGMENT_TAG, _fragment.getTag());
+            message.setData(data);
+
+            _fragment.handler.sendMessage(message);
+        }
+    }
+
+    public interface AsyncTaskFragmentListener {
+
+        void onPreExecute(String fragmentTag);
+        void onProgressUpdate(String fragmentTag, Object... progress);
+        void onCancelled(String fragmentTag);
+        void onPostExecute(String fragmentTag, Object result);
+    }
+
+    private static class AsyncTaskFragmentPauseHandler extends PauseHandler {
+
+        @Override
+        final protected void processMessage(Activity activity, Message message) {
+
+            switch (message.what) {
+
+                case ON_PRE_EXECUTE_MESSAGE : { ((AsyncTaskFragmentListener)activity).onPreExecute(message.getData().getString(EXTRA_FRAGMENT_TAG)); break; }
+                case ON_POST_EXECUTE_MESSAGE : { ((AsyncTaskFragmentListener)activity).onPostExecute(message.getData().getString(EXTRA_FRAGMENT_TAG), message.obj); break; }
+                case ON_PROGRESS_UPDATE_MESSAGE : { ((AsyncTaskFragmentListener)activity).onProgressUpdate(message.getData().getString(EXTRA_FRAGMENT_TAG), ((Object[])message.obj)); break; }
+                case ON_CANCELLED_MESSAGE : { ((AsyncTaskFragmentListener)activity).onCancelled(message.getData().getString(EXTRA_FRAGMENT_TAG)); break; }
+            }
+        }
+    }
+
+    // endregion
+    /* ------------------------------------------------------------------------------------------ */
+
+
+
+    /* ------------------------------------------------------------------------------------------ */
+    // region Attributes
+
+    private Task _task;
+    private AsyncTaskFragmentListener _listener;
+    private boolean _running = false;
+
+    private static final String EXTRA_FRAGMENT_TAG = "EXTRA_FRAGMENT_TAG";
+    private static final int ON_PRE_EXECUTE_MESSAGE = 0;
+    private static final int ON_POST_EXECUTE_MESSAGE = 1;
+    private static final int ON_PROGRESS_UPDATE_MESSAGE = 2;
+    private static final int ON_CANCELLED_MESSAGE = 3;
+
+    private AsyncTaskFragmentPauseHandler handler = new AsyncTaskFragmentPauseHandler();
+
+    // endregion
+    /* ------------------------------------------------------------------------------------------ */
+
+
+
+    /* ------------------------------------------------------------------------------------------ */
+    // region Getters
+
+    public AsyncTaskFragmentListener getListener() { return _listener; }
+    public boolean isRunning() { return _running; }
+
+    // endregion
+    /* ------------------------------------------------------------------------------------------ */
+
+
+
+    /* ------------------------------------------------------------------------------------------ */
+    // region Setters
+
+    public void setTask(Task task) {
+
+        _task = task;
+        _task.setFragment(this);
+    }
+
+    public void setListener(AsyncTaskFragmentListener listener) { _listener = listener; }
+    private void setRunning(boolean running) { _running = running; }
+
+    // endregion
+    /* ------------------------------------------------------------------------------------------ */
+
+
+
+    /* ------------------------------------------------------------------------------------------ */
+    // region Fragment lifecycle
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void onResume() {
+
+        super.onResume();
+        handler.resume(getActivity());
+    }
+
+    @Override
+    public void onPause() {
+
+        super.onPause();
+        handler.pause();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+
+        super.onAttach(activity);
+        _listener = (AsyncTaskFragmentListener) activity;
+    }
+
+    @Override
+    public void onDetach() {
+
+        super.onDetach();
+        _listener = null;
+    }
+
+    // endregion
+    /* ------------------------------------------------------------------------------------------ */
+
+
+
+    /* ------------------------------------------------------------------------------------------ */
+    // region Utils
+
+    public void execute(Object... params) {
+
+        _task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+    }
+
+    public void cancel(boolean mayInterruptIfRunning) {
+
+        _task.cancel(mayInterruptIfRunning);
+    }
+
+    public static AsyncTaskFragment getRetainedOrNewFragment(AppCompatActivity activity, String fragmentTag) {
+
+        FragmentManager fm = activity.getSupportFragmentManager();
+        AsyncTaskFragment fragment = (AsyncTaskFragment) fm.findFragmentByTag(fragmentTag);
+
+        if (fragment == null) {
+
+            fragment = new AsyncTaskFragment();
+            fragment.setListener( (AsyncTaskFragmentListener) activity);
+            fm.beginTransaction().add(fragment, fragmentTag).commit();
+        }
+
+        return fragment;
+    }
+
+    // endregion
+    /* ------------------------------------------------------------------------------------------ */
+}
+You'll need the PauseHandler :
+
+import android.app.Activity;
+import android.os.Handler;
+import android.os.Message;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+    private final List<Message> messageQueueBuffer = Collections.synchronizedList(new ArrayList<Message>());
+
+    /**
+     * Flag indicating the pause state
+     */
+    private Activity activity;
+
+    /**
+     * Resume the handler.
+     */
+    public final synchronized void resume(Activity activity) {
+        this.activity = activity;
+
+        while (messageQueueBuffer.size() > 0) {
+            final Message msg = messageQueueBuffer.get(0);
+            messageQueueBuffer.remove(0);
+            sendMessage(msg);
+        }
+    }
+
+    /**
+     * Pause the handler.
+     */
+    public final synchronized void pause() {
+        activity = null;
+    }
+
+    /**
+     * Store the message if we have been paused, otherwise handle it now.
+     *
+     * @param msg   Message to handle.
+     */
+    @Override
+    public final synchronized void handleMessage(Message msg) {
+        if (activity == null) {
+            final Message msgCopy = new Message();
+            msgCopy.copyFrom(msg);
+            messageQueueBuffer.add(msgCopy);
+        } else {
+            processMessage(activity, msg);
+        }
+    }
+
+    /**
+     * Notification message to be processed. This will either be directly from
+     * handleMessage or played back from a saved message when the activity was
+     * paused.
+     *
+     * @param activity  Activity owning this Handler that isn't currently paused.
+     * @param message   Message to be handled
+     */
+    protected abstract void processMessage(Activity activity, Message message);
+}
+Sample usage:
+
+public class TestActivity extends AppCompatActivity implements AsyncTaskFragmentListener {
+
+    private final static String ASYNC_TASK_FRAGMENT_A = "ASYNC_TASK_FRAGMENT_A";
+    private final static String ASYNC_TASK_FRAGMENT_B = "ASYNC_TASK_FRAGMENT_B";
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        Button testButton = (Button) findViewById(R.id.test_button);
+        final AsyncTaskFragment fragment = AsyncTaskFragment.getRetainedOrNewFragment(TestActivity.this, ASYNC_TASK_FRAGMENT_A);
+
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!fragment.isRunning()) {
+
+                    fragment.setTask(new Task() {
+
+                        @Override
+                        protected Object doInBackground(Object... objects) {
+
+                            // Do your async stuff
+
+                            return null;
+                        }
+                    });
+
+                    fragment.execute();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onPreExecute(String fragmentTag) {}
+
+    @Override
+    public void onProgressUpdate(String fragmentTag, Float percent) {}
+
+    @Override
+    public void onCancelled(String fragmentTag) {}
+
+    @Override
+    public void onPostExecute(String fragmentTag, Object result) {
+
+        switch (fragmentTag) {
+
+            case ASYNC_TASK_FRAGMENT_A: {
+
+                // Handle ASYNC_TASK_FRAGMENT_A
+                break;
+            }
+            case ASYNC_TASK_FRAGMENT_B: {
+
+                // Handle ASYNC_TASK_FRAGMENT_B
+                break;
+            }
+        }
+    }
+}

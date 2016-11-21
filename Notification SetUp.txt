@@ -1,0 +1,46 @@
+Notification Enabling in Android
+
+
+console.developer.google.com/project
+
+Create Project
+
+popup will come enter Name of Project->Enter
+
+
+after you will get Project Id Copy tht 
+
+
+then go yo Api in left side of view
+Click on api->google cloud messaging turn it on
+
+Go to Crediential-click on generate ServerKey
+
+You will get PopUp
+
+Click Create->we will get Key under
+
+Key for Server Application
+
+in That
+
+Copy that API Key Value
+
+
+In Your Android Project Manifist Add the Below Code
+
+<receiver
+            android:name=".GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+
+                <!-- Receives the actual messages. -->
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.q8car.andriod.activity" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".GcmIntentService" />
+

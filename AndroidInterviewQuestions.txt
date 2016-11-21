@@ -1,0 +1,49 @@
+What is fragments, activity, broadcast receiver,services, content providers.
+Why do we use fragments.
+What is view holder and layout inflater
+Activity life cycle
+Fragment life cycle
+Difference between service and thread
+Disadvantages of async task
+What is the time required to complete task in receiver - 10seconds
+What is anr? Within how many seconds anr will pop up
+What are intents and types of intents
+What is intent filter
+Difference between async task and services
+How to pass data between fragments
+How to cancel asynctask
+What is handlers? Why do we use it?
+How do you restore the edit text values after screen rotation
+Shared Preferences
+What is json
+How to parse json data
+What are design patterns
+What happens to the activity life cycle if the screen rotates from landscape to portrait
+What is intent service
+
+
+pattren matching
+
+String IPADDRESS_PATTERN = 
+        "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+
+Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+Matcher matcher = pattern.matcher(ipString);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        else{
+            return "0.0.0.0";
+        }
+
+
+
+
+
+
+I know some of the design pattern used in android like...
+
+Broadcast receiver uses Observer Design Pattern
+Intent uses a kind of Factory Design Pattern
+View uses Composite Design Pattern
+Media Framework uses Facade Design Pattern

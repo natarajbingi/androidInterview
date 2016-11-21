@@ -1,0 +1,222 @@
+﻿mport java.util.ArrayList;
+
+public class PalindromeDemo {
+
+ static String reverse = "";
+
+ public static void main(String[] args) {
+
+  String webapple = "abx";
+  String apple = "ab";
+  char[] webappleArray = webapple.toCharArray();
+  char[] appleArray = apple.toCharArray();
+  int numbers[] = { 1, 3, 6, 2, 5, 7 };
+  // System.out.println("Result: " + reverseRecursively("srini"));
+
+ /* System.out.println("second highest number: "
+    + findSecondHighestNumber(numbers));*/
+  // printArray(reverseArray(numbers));
+  //rvereseArray(numbers, 2, 4);
+  //printArray(numbers);
+  ArrayList<String> arrayList = new ArrayList<String>();
+  arrayList.add("a");
+  arrayList.add("b");
+  arrayList.add("d");
+  arrayList.add("c");
+  //reverseArrayList(arrayList);
+  //printArrayList(arrayList);
+  reverseArrayListUsingRec(arrayList, 0, 1);
+  printArrayList(arrayList);
+
+
+ }
+
+ private static void printArray(int[] reverseArray) {
+  for (int index = 0; index < reverseArray.length; index++) {
+   System.out.println(reverseArray[index]);
+  }
+
+ }
+
+ private static void printArrayList(ArrayList<String> reverseArrayList) {
+  for (int index = 0; index < reverseArrayList.size(); index++) {
+   System.out.print(reverseArrayList.get(index));
+  }
+
+ }
+
+ public static boolean checkAnagram(String first, String second) {
+  char[] characters = first.toCharArray();
+  StringBuilder sbSecond = new StringBuilder(second);
+  for (char ch : characters) {
+   int index = sbSecond.indexOf("" + ch);
+   if (index != -1) {
+    sbSecond.deleteCharAt(index);
+   } else {
+    return false;
+   }
+  }
+  return sbSecond.length() == 0 ? true : false;
+ }
+
+ public static boolean isPresent(char[] apple, char[] webapple) {
+  System.out.println("webapple.length is" + webapple.length);
+  System.out.println("apple.length+1 is" + (apple.length + 1));
+  System.out.println("webapple.length - apple.length+1 is"
+    + (webapple.length - (apple.length + 1)));
+  int length = webapple.length - apple.length + 1;
+  System.out.println("length is== " + length);
+  for (int i = 0; i < webapple.length - apple.length + 1; i++) {
+   for (int j = 0; j < apple.length; j++) {
+    System.out.println("webapple[i + j] is" + webapple[i + j]);
+    System.out.println("apple[j] is" + apple[j]);
+    if (webapple[i + j] == apple[j]) {
+
+     if (j == apple.length - 1) {
+      System.out.println("[j] is" + j);
+      System.out.println("apple.length - 1 is"
+        + (apple.length - 1));
+      return true;
+     }
+    } else {
+     break;
+    }
+   }
+  }
+  return false;
+ }
+
+ public static boolean isContains(String pStr1, String pStr2) {
+  int length = pStr1.length();
+  System.out.println("given sub string  is" + pStr2);
+  String str2 = "";
+  for (int c = 0; c < length; c++) {
+   for (int i = 1; i <= length - c; i++) {
+    str2 = pStr1.substring(c, c + i);
+    System.out.println("substring is" + str2);
+    if (str2.equals(pStr2)) {
+     return true;
+    }
+   }
+  }
+  return false;
+ }
+
+ public static void permuteString(String beginningString, String endingString) {
+  if (endingString.length() <= 1)
+   System.out.println(beginningString + endingString);
+  else
+   for (int i = 0; i < endingString.length(); i++) {
+    try {
+     String newString = endingString.substring(0, i)
+       + endingString.substring(i + 1);
+
+     permuteString(beginningString + endingString.charAt(i),
+       newString);
+    } catch (StringIndexOutOfBoundsException exception) {
+     exception.printStackTrace();
+    }
+   }
+ }
+
+ public static String reverseString(String str) {
+
+  if (str.length() == 1) {
+   System.out.println("reverseString exiting from str.lrnght ==1");
+   return str;
+  } else {
+   reverse = reverse + str.charAt(str.length() - 1)
+     + reverseString(str.substring(0, str.length() - 1));
+   System.out.println("string is " + str);
+   System.out.println("reverse is " + reverse);
+   System.out.println("reverseString exiting from reverse");
+   return reverse;
+  }
+ }
+
+ public static String reverseRecursively(String str) {
+
+  // base case to handle one char string and empty string
+  if (str.length() < 2) {
+   return str;
+  }
+  String str1 = reverseRecursively(str.substring(1)) + str.charAt (o) ;
+  System.out.println("string one is " + str1);
+
+  System.out.println("string is " + str);
+  return str1;
+  // return reverseRecursively(str.substring(1)) + str.charAt (o) ;
+
+ }
+
+ public static int findSecondHighestNumber(int[] pArray) {
+
+  int highest = 0;
+  int second_highest = -1;
+  if (pArray.length > 2) {
+
+   for (int index = 0; index < pArray.length; index++) {
+    if (pArray[index] > highest) {
+     second_highest = highest;
+     highest = pArray[index];
+    }
+
+   }
+  }
+  return second_highest;
+ }
+
+ public static int[] reverseArray(int[] pArray) {
+  int length = pArray.length / 2;
+  for (int index = 0; index < length; index++) {
+   int temp = pArray[index];
+   pArray[index] = pArray[pArray.length - 1 - index];
+   pArray[pArray.length - 1 - index] = temp;
+  }
+  return pArray;
+
+ }
+
+ / Function to reverse arr[] from start to end /
+ static void rvereseArray(int arr[], int start, int end) {
+  int temp;
+  if (start >= end)
+   return;
+  temp = arr[start];
+  arr[start] = arr[end];
+  arr[end] = temp;
+  rvereseArray(arr, start + 1, end - 1);
+ }
+
+ public static ArrayList<String> reverseArrayList(
+   ArrayList<String> pArraylisArrayList) {
+  int length = pArraylisArrayList.size() / 2;
+  for (int index = 0; index < length; index++) {
+   String temp = pArraylisArrayList.get(index);
+   pArraylisArrayList.set(
+     index,
+     pArraylisArrayList.get(pArraylisArrayList.size() - 1
+       - index));
+   pArraylisArrayList.set(pArraylisArrayList.size() - 1 - index, temp);
+
+  }
+  return pArraylisArrayList;
+
+ }
+
+ public static void reverseArrayListUsingRec(
+   ArrayList<String> pArraylisArrayList, int start, int end) {
+
+  if (start >= end)
+   return;
+
+  String temp = pArraylisArrayList.get(start);
+  pArraylisArrayList.set(start, pArraylisArrayList.get(end));
+  pArraylisArrayList.set(end, temp);
+  reverseArrayListUsingRec(pArraylisArrayList, start + 1, end - 1);
+
+ }
+
+
+
+}

@@ -1,0 +1,636 @@
+﻿
+So let’s start this with a simple project.
+
+Creating New Project
+1. Create a new project in Eclipse from File ⇒ New ⇒ Android Application Project and fill all the required details.
+
+I gave my project name as VolleyJson and package name as info.androidhive.volleyjson
+
+2. Now create a new package under src folder by Right clicking on src ⇒ New ⇒ Package and give the package name as app. So my new package name will 
+be info.androidhive.volleyjson.app
+
+3. Download volley.jar and paste it in project’s libs folder.
+
+4. Create a new class named AppController.java under app package. This is going to be a singleton class where we initialize all the volley core objects.
+
+AppController.java
+package info.androidhive.volleyjson.app;
+ 
+import android.app.Application;
+import android.text.TextUtils;
+ 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+  
+public class AppController extends Application {
+  
+    public static final String TAG = AppController.class.getSimpleName();
+  
+    private RequestQueue mRequestQueue;
+  
+    private static AppController mInstance;
+  
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mInstance = this;
+    }
+  
+    public static synchronized AppController getInstance() {
+        return mInstance;
+    }
+  
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+  
+        return mRequestQueue;
+    }
+  
+    public <T> void addToRequestQueue(Request<T> req, String tag) {
+        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+        getRequestQueue().add(req);
+    }
+  
+    public <T> void addToRequestQueue(Request<T> req) {
+        req.setTag(TAG);
+        getRequestQueue().add(req);
+    }
+  
+    public void cancelPendingRequests(Object tag) {
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(tag);
+        }
+    }
+}
+
+
+5. AppController.java has to be executed when the app is launched. So add this class in your AndroidManifest.xml using name
+ attribute for <application> tag.
+
+Also add INTERNET permission as we need to make internet calls from the app.
+
+<application
+        android:name="info.androidhive.volleyjson.app.AppController">
+AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="info.androidhive.volleyjson"
+    android:versionCode="1"
+    android:versionName="1.0" >
+ 
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="21" />
+     
+    <uses-permission android:name="android.permission.INTERNET"/>
+ 
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:name="info.androidhive.volleyjson.app.AppController">
+        <activity
+            android:name="info.androidhive.volleyjson.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+ 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+ 
+</manifest>
+
+
+6. Open the layout file of main activity and add below code. (In my case my main activity layout file is activity_main.xml).
+
+In this layout we are adding two Buttons and a TextView. In two Button, one is to invoke json object request and other is to invoke json array 
+request. The TextView is used to display the parsed json response.
+
+activity_main.xml
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${relativePackage}.${activityClass}" >
+ 
+    <Button
+        android:id="@+id/btnObjRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:text="Make JSON Object Request" />
+ 
+    <Button
+        android:id="@+id/btnArrayRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:text="Make JSON Array Request"
+        android:layout_below="@id/btnObjRequest" />
+     
+    <TextView
+        android:id="@+id/txtResponse"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnArrayRequest"
+        android:layout_marginTop="40px"
+        android:padding="20dp" />
+ 
+</RelativeLayout>
+
+
+7. Now open main activity class MainActivity.java and add basic code like importing UI elements, adding button click events and initializing other 
+objects.
+
+Below you can notice two methods makeJsonObjectRequest() and makeJsonArrayRequest(). But these methods left empty for now, we’ll add code for these
+ methods in next steps.
+
+MainActivity.java
+package info.androidhive.volleyjson;
+ 
+import info.androidhive.volleyjson.R;
+import info.androidhive.volleyjson.app.AppController;
+ 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+ 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+ 
+import com.android.volley.Request.Method;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+ 
+public class MainActivity extends Activity {
+ 
+    // json object response url
+    private String urlJsonObj = "http://api.androidhive.info/volley/person_object.json";
+     
+    // json array response url
+    private String urlJsonArry = "http://api.androidhive.info/volley/person_array.json";
+ 
+    private static String TAG = MainActivity.class.getSimpleName();
+    private Button btnMakeObjectRequest, btnMakeArrayRequest;
+ 
+    // Progress dialog
+    private ProgressDialog pDialog;
+ 
+    private TextView txtResponse;
+ 
+    // temporary string to show the parsed response
+    private String jsonResponse;
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+ 
+        btnMakeObjectRequest = (Button) findViewById(R.id.btnObjRequest);
+        btnMakeArrayRequest = (Button) findViewById(R.id.btnArrayRequest);
+        txtResponse = (TextView) findViewById(R.id.txtResponse);
+ 
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
+ 
+        btnMakeObjectRequest.setOnClickListener(new View.OnClickListener() {
+ 
+            @Override
+            public void onClick(View v) {
+                // making json object request
+                makeJsonObjectRequest();
+            }
+        });
+ 
+        btnMakeArrayRequest.setOnClickListener(new View.OnClickListener() {
+ 
+            @Override
+            public void onClick(View v) {
+                // making json array request
+                makeJsonArrayRequest();
+            }
+        });
+ 
+    }
+ 
+    /**
+     * Method to make json object request where json response starts wtih {
+     * */
+    private void makeJsonObjectRequest() {
+    }
+ 
+    /**
+     * Method to make json array request where response starts with [
+     * */
+    private void makeJsonArrayRequest() {
+    }
+ 
+    private void showpDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+ 
+    private void hidepDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+}
+
+
+Normally json response will be of two types. It can be either json object or json array. If the json starts with {, it is considered to be JSON Object. As well if the json starts with [, then it is JSON Array.
+
+Now we’ll see how to make these requests individually.
+
+
+Making JSON Object Request
+8. Volley provides JsonObjectRequest class to make json object request. Add the below code in makeJsonObjectRequest() method. Here we are fetching the json by making a call to below url and parsing it. Finally the parsed response is appended to a string and displayed on the screen.
+
+Sample JSON Object Response
+
+URL: http://api.androidhive.info/volley/person_object.json
+
+{
+    "name" : "Ravi Tamada", 
+    "email" : "ravi8x@gmail.com",
+    "phone" : {
+        "home" : "08947 000000",
+        "mobile" : "9999999999"
+    }
+     
+}
+/**
+ * Method to make json object request where json response starts wtih {
+ * */
+private void makeJsonObjectRequest() {
+ 
+    showpDialog();
+ 
+    JsonObjectRequest jsonObjReq = new JsonObjectRequest(Method.GET,
+            urlJsonObj, null, new Response.Listener<JSONObject>() {
+ 
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.d(TAG, response.toString());
+ 
+                    try {
+                        // Parsing json object response
+                        // response will be a json object
+                        String name = response.getString("name");
+                        String email = response.getString("email");
+                        JSONObject phone = response.getJSONObject("phone");
+                        String home = phone.getString("home");
+                        String mobile = phone.getString("mobile");
+ 
+                        jsonResponse = "";
+                        jsonResponse += "Name: " + name + "\n\n";
+                        jsonResponse += "Email: " + email + "\n\n";
+                        jsonResponse += "Home: " + home + "\n\n";
+                        jsonResponse += "Mobile: " + mobile + "\n\n";
+ 
+                        txtResponse.setText(jsonResponse);
+ 
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(),
+                                "Error: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                    hidepDialog();
+                }
+            }, new Response.ErrorListener() {
+ 
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    VolleyLog.d(TAG, "Error: " + error.getMessage());
+                    Toast.makeText(getApplicationContext(),
+                            error.getMessage(), Toast.LENGTH_SHORT).show();
+                    // hide the progress dialog
+                    hidepDialog();
+                }
+            });
+ 
+    // Adding request to request queue
+    AppController.getInstance().addToRequestQueue(jsonObjReq);
+}
+
+
+Making JSON Array Request
+9. Volley provides JsonArrayRequest class to make json array request. Add the below code in makeJsonArrayRequest() method.
+
+Sample JSON Array Response
+
+URL: http://api.androidhive.info/volley/person_array.json
+
+[
+    {
+    "name" : "Ravi Tamada", 
+    "email" : "ravi8x@gmail.com",
+    "phone" : {
+        "home" : "08947 000000",
+        "mobile" : "9999999999"
+    }
+    },
+    {
+    "name" : "Tommy", 
+    "email" : "tommy@gmail.com",
+    "phone" : {
+        "home" : "08946 000000",
+        "mobile" : "0000000000"
+    }
+    }
+]
+/**
+ * Method to make json array request where response starts with [
+ * */
+private void makeJsonArrayRequest() {
+ 
+    showpDialog();
+ 
+    JsonArrayRequest req = new JsonArrayRequest(urlJsonArry,
+            new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray response) {
+                    Log.d(TAG, response.toString());
+ 
+                    try {
+                        // Parsing json array response
+                        // loop through each json object
+                        jsonResponse = "";
+                        for (int i = 0; i < response.length(); i++) {
+ 
+                            JSONObject person = (JSONObject) response
+                                    .get(i);
+ 
+                            String name = person.getString("name");
+                            String email = person.getString("email");
+                            JSONObject phone = person
+                                    .getJSONObject("phone");
+                            String home = phone.getString("home");
+                            String mobile = phone.getString("mobile");
+ 
+                            jsonResponse += "Name: " + name + "\n\n";
+                            jsonResponse += "Email: " + email + "\n\n";
+                            jsonResponse += "Home: " + home + "\n\n";
+                            jsonResponse += "Mobile: " + mobile + "\n\n\n";
+ 
+                        }
+ 
+                        txtResponse.setText(jsonResponse);
+ 
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(),
+                                "Error: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+ 
+                    hidepDialog();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    VolleyLog.d(TAG, "Error: " + error.getMessage());
+                    Toast.makeText(getApplicationContext(),
+                            error.getMessage(), Toast.LENGTH_SHORT).show();
+                    hidepDialog();
+                }
+            });
+ 
+    // Adding request to request queue
+    AppController.getInstance().addToRequestQueue(req);
+}
+Now run the project and test it once. You should able to see the parsed json displayed on the screen upon tapping the json request buttons.
+
+android json parsing using volley
+
+
+Complete Code
+Here is the complete code of MainActivity.java
+
+MainActivity.java
+package info.androidhive.volleyjson;
+ 
+import info.androidhive.volleyjson.R;
+import info.androidhive.volleyjson.app.AppController;
+ 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+ 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+ 
+import com.android.volley.Request.Method;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+ 
+public class MainActivity extends Activity {
+ 
+    // json object response url
+    private String urlJsonObj = "http://api.androidhive.info/volley/person_object.json";
+     
+    // json array response url
+    private String urlJsonArry = "http://api.androidhive.info/volley/person_array.json";
+ 
+    private static String TAG = MainActivity.class.getSimpleName();
+    private Button btnMakeObjectRequest, btnMakeArrayRequest;
+ 
+    // Progress dialog
+    private ProgressDialog pDialog;
+ 
+    private TextView txtResponse;
+ 
+    // temporary string to show the parsed response
+    private String jsonResponse;
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+ 
+        btnMakeObjectRequest = (Button) findViewById(R.id.btnObjRequest);
+        btnMakeArrayRequest = (Button) findViewById(R.id.btnArrayRequest);
+        txtResponse = (TextView) findViewById(R.id.txtResponse);
+ 
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
+ 
+        btnMakeObjectRequest.setOnClickListener(new View.OnClickListener() {
+ 
+            @Override
+            public void onClick(View v) {
+                // making json object request
+                makeJsonObjectRequest();
+            }
+        });
+ 
+        btnMakeArrayRequest.setOnClickListener(new View.OnClickListener() {
+ 
+            @Override
+            public void onClick(View v) {
+                // making json array request
+                makeJsonArrayRequest();
+            }
+        });
+ 
+    }
+ 
+    /**
+     * Method to make json object request where json response starts wtih {
+     * */
+    private void makeJsonObjectRequest() {
+ 
+        showpDialog();
+ 
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Method.GET,
+                urlJsonObj, null, new Response.Listener<JSONObject>() {
+ 
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(TAG, response.toString());
+ 
+                        try {
+                            // Parsing json object response
+                            // response will be a json object
+                            String name = response.getString("name");
+                            String email = response.getString("email");
+                            JSONObject phone = response.getJSONObject("phone");
+                            String home = phone.getString("home");
+                            String mobile = phone.getString("mobile");
+ 
+                            jsonResponse = "";
+                            jsonResponse += "Name: " + name + "\n\n";
+                            jsonResponse += "Email: " + email + "\n\n";
+                            jsonResponse += "Home: " + home + "\n\n";
+                            jsonResponse += "Mobile: " + mobile + "\n\n";
+ 
+                            txtResponse.setText(jsonResponse);
+ 
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),
+                                    "Error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        hidepDialog();
+                    }
+                }, new Response.ErrorListener() {
+ 
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.d(TAG, "Error: " + error.getMessage());
+                        Toast.makeText(getApplicationContext(),
+                                error.getMessage(), Toast.LENGTH_SHORT).show();
+                        // hide the progress dialog
+                        hidepDialog();
+                    }
+                });
+ 
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+    }
+ 
+    /**
+     * Method to make json array request where response starts with [
+     * */
+    private void makeJsonArrayRequest() {
+ 
+        showpDialog();
+ 
+        JsonArrayRequest req = new JsonArrayRequest(urlJsonArry,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, response.toString());
+ 
+                        try {
+                            // Parsing json array response
+                            // loop through each json object
+                            jsonResponse = "";
+                            for (int i = 0; i < response.length(); i++) {
+ 
+                                JSONObject person = (JSONObject) response
+                                        .get(i);
+ 
+                                String name = person.getString("name");
+                                String email = person.getString("email");
+                                JSONObject phone = person
+                                        .getJSONObject("phone");
+                                String home = phone.getString("home");
+                                String mobile = phone.getString("mobile");
+ 
+                                jsonResponse += "Name: " + name + "\n\n";
+                                jsonResponse += "Email: " + email + "\n\n";
+                                jsonResponse += "Home: " + home + "\n\n";
+                                jsonResponse += "Mobile: " + mobile + "\n\n\n";
+ 
+                            }
+ 
+                            txtResponse.setText(jsonResponse);
+ 
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),
+                                    "Error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+ 
+                        hidepDialog();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.d(TAG, "Error: " + error.getMessage());
+                        Toast.makeText(getApplicationContext(),
+                                error.getMessage(), Toast.LENGTH_SHORT).show();
+                        hidepDialog();
+                    }
+                });
+ 
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(req);
+    }
+ 
+    private void showpDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+ 
+    private void hidepDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+}
+

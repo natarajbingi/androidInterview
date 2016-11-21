@@ -1,0 +1,187 @@
+﻿
+Get Contact Emails By Content Provider - Android Example
+ 
+
+ 
+ 
+ContentProvider used to get data from central repository. Android application contains content provider to provide data to other applications.
+
+you can also create your custom content provider to get data from database / sdcard / media etc.
+
+Content providers create an abstraction layer between its repository of data and external application that are using data.
+
+External Application can call Content Provider methods with the use of ContentResolver.
+
+ContentResolver work as ContentProvider client object, with the use of Content Resolver object we can get data from Content Provider.
+
+ContentProvider and ContentResolver (provider clients) used together to create a interface for data to handles inter-process 
+communication and access data in secure way.
+ 
+Content provider show data to content resolver as one or many tables that will show same as relational database.
+Android provide number of content providers that store common data such as contact informations, calendar information, and media files etc.
+
+You can see list of content provider, Check this link from Android developer site 
+Content Providers List
+
+Also check this link :
+Be Careful With Content Providers
+ 
+Content Provider Workflow :
+Content provider basic workflow
+ 
+ 
+See Sql Like Table Structure :
+Conentprovider table structure
+ 
+ 
+ContentResolver ( Client object to Access ContentProvider ) :
+An application get data from a content provider with a ContentResolver client object.
+The ContentResolver provide the basic create, retrieve, update, and delete functions.
+When application called ContentResolver method then identically-named method call in ContentProvider.
+
+  Example : 
+
+    If you call getContentResolver().query method then ContentProvider query method called. 
+    If you call getContentResolver().insert method then ContentProvider insert method called.
+// Queries the user dictionary and returns results
+mCursor = getContentResolver().query(
+            CONTENT_URI,                        // The content URI to access table
+            mProjection,                        // The columns to return for each row
+            mSelectionClause                    // Selection criteria
+            mSelectionArgs,                     // Selection criteria
+            mSortOrder);                        // The sort order for the returned rows
+     Most of developer familiar with sql queries because of that Android has made ContentResolver methods parameters like sql query.
+  ContentResolver parameter comparison with SQL Query
+
+ContentResolver sql query comparison
+
+  => CONTENT_URI :
+
+    A content URI is a URI that identifies data in a provider, similar like table name in SQL Query.
+
+    A content URI is a URI that identifies data in a provider. Content URIs include the symbolic name of the entire provider 
+(its authority) and a name that points to a table (a path). When you call a ContentResolver method to access a table in a provider, the content 
+URI for the table is one of the arguments.
+
+Content uri description
+  => mProjection :
+
+    This parameter define which column data you want to fetch from table.
+// A "projection" defines the columns that will be returned for each row
+String[] mProjection =
+{
+    ContactsContract.Contacts._ID,                // Contract class constant for the _ID column name
+    ContactsContract.Contacts.DISPLAY_NAME        // Contract class constant for the DISPLAY_NAME column name
+};
+  => mSelectionClause :
+
+    This parameter selection criteria for rows fetching from table.
+    Its like condition after where clause in sql.
+
+ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?" <br><br>
+    ? mark means user defined mSelectionArgs value will come in place on ? mark.
+
+    This is same as 
+
+SELECT _ID, name FROM data WHERE contact_id = <userinput>; <br><br>
+</userinput>
+  => mSelectionArgs :
+
+    This parameter is user defined value that will pass in place of mSelectionClause ? mark.
+
+// Defines an array to contain the selection arguments
+String[] selectionArgs = {""};
+ 
+// Sets the selection argument to the user’s input
+selectionArgs[0] = mUserInput;
+  => mSortOrder :
+
+    This parameter specifies the order in which rows appear in the returned Cursor.
+    Its is same as ORDER BY col,col,... in SQL.
+ 
+Content Provider Permissions :
+ 
+  A provider’s application can specify permissions that other applications must have in order to access the provider’s data.
+
+  Example : 
+
+    If application read contact data from device then use this permission
+  <uses-permission android:name="android.permission.READ_CONTACTS">
+</uses-permission>
+ 
+To Better understand check this code to get first contact phone number by contact provider :
+ 
+// A "projection" defines the columns that will be returned for each row
+ String[] mProjection =
+ {
+     // ContactsContract data table data1 column name
+     ContactsContract.CommonDataKinds.Phone.NUMBER        
+ };
+ 
+  /*
+  * This defines a one-element String array to contain the selection argument.
+  */
+ String[] mSelectionArgs = {""};
+  
+  
+ // Remember to insert code here to check for invalid or malicious input.
+  
+ // Constructs a selection clause that matches the contact_id from data table.
+ mSelectionClause = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
+ 
+ // Get data for 1st record
+ mSelectionArgs[0] = 1;
+  
+ 
+  
+ // Does a query against the table and returns a Cursor object
+ mCursor = getContentResolver().query(
+  
+     ContactsContract.CommonDataKinds.Phone.CONTENT_URI, // URI
+     mProjection,                 // The columns to return for each row
+     mSelectionClause             // Data for first contact
+     mSelectionArgs,              // first contact
+     mSortOrder                   // The sort order for the returned rows
+      
+     );                 
+  
+ // Some providers return null if an error occurs, others throw an exception
+ if (null == mCursor) {
+  
+     // Insert code here to handle the error. Be sure not to use the cursor! You may want to
+     // call android.util.Log.e() to log this error.
+       
+       
+ // If the Cursor is empty, the provider found no matches
+ } else if (mCursor.getCount() < 1) {
+  
+     // Insert code here to notify the user that the contact query was unsuccessful. This isn’t necessarily
+     // an error. You may want to offer the user the option to insert a new row, or re-type the
+     // search term.
+       
+  
+ } else {
+      
+       // Insert code here to do something with the results
+      
+      // Moves to the next row in the cursor. Before the first movement in the cursor, the
+      // "row pointer" is -1, and if you try to retrieve data at that position you will get an
+      // exception.
+       
+     while (mCursor.moveToNext()) {
+  
+         // Gets the value from the column.
+          
+         phoneNumber = mCursor.getString(index);
+  
+         // Show phone number in Logcat
+         Log.i("Phone"," Numbers : " + phoneNumber);
+          
+         // end of while loop
+     }
+  
+ } 
+ 
+inShare
+ 		    
+ 

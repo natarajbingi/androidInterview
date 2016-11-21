@@ -1,0 +1,497 @@
+
+  	 	
+
+
+
+private Callbacks mCallbacks = sDummyCallbacks;
+
+/*A callback interface that all activities containing this fragment must implement. This mechanism allows activities to be notified of item selections. */
+
+public interface Callbacks {
+/*Callback for when an item has been selected. */    
+      public void onItemSelected(String id);
+}
+
+/*A dummy implementation of the {@link Callbacks} interface that does nothing. Used only when this fragment is not attached to an activity. */    
+private static Callbacks sDummyCallbacks = new Callbacks() {
+    @Override
+    public void onItemSelected(String id) {
+    }
+};
+The Callback interface is put inside one of your Fragments (let’s say Fragment A). I think the purpose of this Callbacks interface is like a nested class inside Frag A which any Activity can implement. So if Fragment A was a TV, the CallBacks is the TV Remote (interface) that allows Fragment A to be used by Activity AB. I may be wrong about the detail because I'm a noob but I did get my program to work perfectly on all screen sizes and this is what I used.
+
+So inside Fragment A, we have: (I took this from Android’s Sample programs)
+
+@Override
+public void onListItemClick(ListView listView, View view, int position, long id) {
+super.onListItemClick(listView, view, position, id);
+// Notify the active callbacks interface (the activity, if the
+// fragment is attached to one) that an item has been selected.
+mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+//mCallbacks.onItemSelected( PUT YOUR SHIT HERE. int, String, etc.);
+//mCallbacks.onItemSelected (Object);
+}
+And inside Activity AB we override the onItemSelected method:
+
+public class AB extends FragmentActivity implements ItemListFragment.Callbacks {
+//...
+@Override
+//public void onItemSelected (CATCH YOUR SHIT HERE) {
+//public void onItemSelected (Object obj) {
+    public void onItemSelected(String id) {
+    //Pass Data to Fragment B. For example:
+    Bundle arguments = new Bundle();
+    arguments.putString(“FragmentB_package”, id);
+    FragmentB fragment = new FragmentB();
+    fragment.setArguments(arguments);
+    getSupportFragmentManager().beginTransaction().replace(R.id.item_detail_container, fragment).commit();
+    }
+So inside Activity AB, you basically throwing everything into a Bundle and passing it to B. If u are not sure how to use a Bundle, look the class up.
+
+I am basically going by the sample code that Android provided. The one with the DummyContent stuff. When you make a new Android Application Package, it's the one titled MasterDetailFlow.
+
+
+That depends on how the fragment is structured. If you can have some of the methods on the Fragment Class B static and also the target TextView object static, you can call the method directly on Fragment Class A. This is better than a listener as the method is performed instantaneously, and we don't need to have an additional task that performs listening throughout the activity. See example below:
+
+Fragment_class_B.setmyText(String yourstring);
+On Fragment B you can have the method defined as:
+
+public static void setmyText(final String string) {
+myTextView.setText(string);
+}
+Just don't forget to have myTextView set as static on Fragment B, and properly import the Fragment B class on Fragment A.
+
+Just did the procedure on my project recently and it worked. Hope that helped.
+
+shareimprove this answer
+answered Dec 27 '12 at 5:00
+
+Pier Betos
+614
+1	 	
+That'll work (well, until the fragment is destroyed and recreated, think device rotation) but you're tightly coupling fragments; the dependent fragment (let's call it 'X') has a hardwired dependency in its code on the other fragment ('Y'). Going via the parent activity is much neater because you can leave it to the activity to decide where to get the data from. For example on a phone your activity might use fragments X and Y, but on a tablet you might decide to use X and Z. Better to let the Activity (which knows what fragments exist) act as middle man and connect to Y or Z as appropriate. –  Phil Jan 14 '13 at 15:28
+  	 	
+
+	
+While this link may answer the question, it is better to include the essential parts of the answer here and provide the link for reference. Link-only answers can become invalid if the linked page changes. –  Mez Jul 21 '14 at 13:05
+  	 	
+This does not provide an answer to the question. To critique or request clarification from an author, leave a comment below their post - you can always comment on your own posts, and once you have sufficient reputation you will be able to comment on any post. –  bartektartanus Jul 21 '14 at 13:07
+  	 	
+
+Fragment fragment = new Fragment();
+Bundle bundle = new Bundle();
+bundle.putInt(key, value);
+fragment.setArguments(bundle);
+Then in your second Fragment, retrieve the data using:
+
+Bundle bundle = this.getArguments();
+int myInt = bundle.getInt(key, defaultValue);
+
+I'm working on a similar project and I guess my code may help in the above situation
+
+Here is the overview of what i'm doing
+
+My project Has two fragments Called "FragmentA" and "FragmentB"
+
+-FragmentA Contains one list View,when you click an item in FragmentA It's INDEX is passed to FragmentB using Communicator interface
+
+The design pattern is totally based on the concept of java interfaces that says "interface reference variables can refer to a subclass object"
+Let MainActivity implement the interface provided by fragmentA(otherwise we can't make interface reference variable to point to MainActivity)
+In the below code communicator object is made to refer to MainActivity's object by using "setCommunicator(Communicatot c)" method present in fragmentA.
+I'm triggering respond() method of interface from FrgamentA using the MainActivity's reference.
+
+Interface communcator is defined inside fragmentA, this is to provide least access previlage to communicator interface.
+
+below is my complete working code
+
+FragmentA.java
+
+public class FragmentA extends Fragment implements OnItemClickListener {
+
+ListView list;
+Communicator communicater;
+
+
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
+    // TODO Auto-generated method stub
+    return inflater.inflate(R.layout.fragmenta, container,false);
+}
+
+public void setCommunicator(Communicator c){
+    communicater=c;
+}
+
+@Override
+public void onActivityCreated(Bundle savedInstanceState) {
+    // TODO Auto-generated method stub
+    super.onActivityCreated(savedInstanceState);
+    communicater=(Communicator) getActivity();
+    list = (ListView) getActivity().findViewById(R.id.lvModularListView);
+    ArrayAdapter<?> adapter = ArrayAdapter.createFromResource(getActivity(),
+            R.array.items, android.R.layout.simple_list_item_1);
+    list.setAdapter(adapter);
+    list.setOnItemClickListener(this);
+
+}
+
+@Override
+public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
+communicater.respond(index);
+
+}
+
+public interface Communicator{
+    public void respond(int index);
+}
+}
+
+fragmentB.java
+
+public class FragmentA extends Fragment implements OnItemClickListener {
+
+ListView list;
+Communicator communicater;
+
+
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
+    // TODO Auto-generated method stub
+    return inflater.inflate(R.layout.fragmenta, container,false);
+}
+
+public void setCommunicator(Communicator c){
+    communicater=c;
+}
+
+@Override
+public void onActivityCreated(Bundle savedInstanceState) {
+    // TODO Auto-generated method stub
+    super.onActivityCreated(savedInstanceState);
+    communicater=(Communicator) getActivity();
+    list = (ListView) getActivity().findViewById(R.id.lvModularListView);
+    ArrayAdapter<?> adapter = ArrayAdapter.createFromResource(getActivity(),
+            R.array.items, android.R.layout.simple_list_item_1);
+    list.setAdapter(adapter);
+    list.setOnItemClickListener(this);
+
+}
+
+@Override
+public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
+communicater.respond(index);
+
+}
+
+public interface Communicator{
+    public void respond(int index);
+}
+
+}
+MainActivity.java
+
+public class MainActivity extends Activity implements FragmentA.Communicator {
+FragmentManager manager=getFragmentManager();
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    FragmentA fragA=(FragmentA) manager.findFragmentById(R.id.fragmenta);
+    fragA.setCommunicator(this);
+
+
+}
+
+@Override
+public void respond(int i) {
+    // TODO Auto-generated method stub
+
+FragmentB FragB=(FragmentB) manager.findFragmentById(R.id.fragmentb);
+FragB.changetext(i);
+}
+
+
+
+}
+
+down vote
+Fragment class A
+
+public class CountryListFragment extends ListFragment{
+
+    /** List of countries to be displayed in the ListFragment */
+
+    ListFragmentItemClickListener ifaceItemClickListener;   
+
+    /** An interface for defining the callback method */
+    public interface ListFragmentItemClickListener {
+    /** This method will be invoked when an item in the ListFragment is clicked */
+    void onListFragmentItemClick(int position);
+}   
+
+/** A callback function, executed when this fragment is attached to an activity */  
+@Override
+public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    try{
+        /** This statement ensures that the hosting activity implements ListFragmentItemClickListener */
+        ifaceItemClickListener = (ListFragmentItemClickListener) activity;          
+    }catch(Exception e){
+        Toast.makeText(activity.getBaseContext(), "Exception",Toast.LENGTH_SHORT).show();
+    }
+}
+Fragment Class B
+
+public class CountryDetailsFragment extends Fragment {
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+    /** Inflating the layout country_details_fragment_layout to the view object v */
+    View v = inflater.inflate(R.layout.country_details_fragment_layout, null);
+
+    /** Getting the textview object of the layout to set the details */ 
+    TextView tv = (TextView) v.findViewById(R.id.country_details);      
+
+    /** Getting the bundle object passed from MainActivity ( in Landscape   mode )  or from 
+     *  CountryDetailsActivity ( in Portrait Mode )  
+     * */
+    Bundle b = getArguments();
+
+    /** Getting the clicked item's position and setting corresponding  details in the textview of the detailed fragment */
+    tv.setText("Details of " + Country.name[b.getInt("position")]);     
+
+    return v;
+    }
+
+}
+Main Activity class for passing data between fragments
+
+public class MainActivity extends Activity implements ListFragmentItemClickListener {
+/** Called when the activity is first created. */
+@Override
+public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.main);
+}
+
+
+/** This method will be executed when the user clicks on an item in the listview */
+@Override
+public void onListFragmentItemClick(int position) {
+
+    /** Getting the orientation ( Landscape or Portrait ) of the screen */
+    int orientation = getResources().getConfiguration().orientation;
+
+
+    /** Landscape Mode */
+    if(orientation == Configuration.ORIENTATION_LANDSCAPE ){
+        /** Getting the fragment manager for fragment related operations */
+        FragmentManager fragmentManager = getFragmentManager();
+
+        /** Getting the fragmenttransaction object, which can be used to add, remove or replace a fragment */
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        /** Getting the existing detailed fragment object, if it already exists. 
+         *  The fragment object is retrieved by its tag name  *
+         */
+Fragment prevFrag = fragmentManager.findFragmentByTag("in.wptrafficanalyzer.country.details");
+
+        /** Remove the existing detailed fragment object if it exists */
+        if(prevFrag!=null)
+    fragmentTransaction.remove(prevFrag);           
+
+        /** Instantiating the fragment CountryDetailsFragment */
+  CountryDetailsFragment fragment = new CountryDetailsFragment();
+
+        /** Creating a bundle object to pass the data(the clicked item's   position) from the activity to the fragment */ 
+        Bundle b = new Bundle();
+
+        /** Setting the data to the bundle object */
+        b.putInt("position", position);
+
+        /** Setting the bundle object to the fragment */
+        fragment.setArguments(b);           
+
+        /** Adding the fragment to the fragment transaction */
+        fragmentTransaction.add(R.id.detail_fragment_container,   fragment,"in.wptrafficanalyzer.country.details");
+
+        /** Adding this transaction to backstack */
+        fragmentTransaction.addToBackStack(null);
+
+        /** Making this transaction in effect */
+        fragmentTransaction.commit();
+
+    }else{          /** Portrait Mode or Square mode */
+        /** Creating an intent object to start the CountryDetailsActivity */
+        Intent intent = new Intent("in.wptrafficanalyzer.CountryDetailsActivity");
+
+        /** Setting data ( the clicked item's position ) to this intent */
+        intent.putExtra("position", position);
+
+        /** Starting the activity by passing the implicit intent */
+        startActivity(intent);          
+      }
+    }
+ }
+Detailde acitivity class
+
+public class CountryDetailsActivity extends Activity{
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    /** Setting the layout for this activity */
+    setContentView(R.layout.country_details_activity_layout);
+
+    /** Getting the fragment manager for fragment related operations */
+    FragmentManager fragmentManager = getFragmentManager();
+
+    /** Getting the fragmenttransaction object, which can be used to add, remove or replace a fragment */
+    FragmentTransaction fragmentTransacton = fragmentManager.beginTransaction();
+
+    /** Instantiating the fragment CountryDetailsFragment */
+    CountryDetailsFragment detailsFragment = new CountryDetailsFragment();
+
+    /** Creating a bundle object to pass the data(the clicked item's position) from the activity to the fragment */
+    Bundle b = new Bundle();
+
+    /** Setting the data to the bundle object from the Intent*/
+    b.putInt("position", getIntent().getIntExtra("position", 0));
+
+    /** Setting the bundle object to the fragment */
+    detailsFragment.setArguments(b);
+
+    /** Adding the fragment to the fragment transaction */
+    fragmentTransacton.add(R.id.country_details_fragment_container, detailsFragment);       
+
+    /** Making this transaction in effect */
+    fragmentTransacton.commit();
+
+    }
+}
+Array Of Contries
+
+public class Country {
+
+/** Array of countries used to display in CountryListFragment */
+static String name[] = new String[] {
+        "India",
+        "Pakistan",
+        "Sri Lanka",
+        "China",
+        "Bangladesh",
+        "Nepal",
+        "Afghanistan",
+        "North Korea",
+        "South Korea",
+        "Japan",
+        "Bhutan"
+};
+}
+
+Basically here we are dealing with communication between Fragments. Communication between fragments can never be directly possible. It involves activity under the context of which both the fragments are created.
+
+You need to create an interface in the sending fragment and implement the interface in the activity which will reprieve the message and transfer to the receiving fragment.
+
+
+Basically Implement the interface to communicate between Activity and fragment.
+
+1) Main activty
+
+public class MainActivity extends Activity implements SendFragment.StartCommunication
+{
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.activity_main);
+}
+
+@Override
+public void setComm(String msg) {
+// TODO Auto-generated method stub
+DisplayFragment mDisplayFragment = (DisplayFragment)getFragmentManager().findFragmentById(R.id.fragment2);
+if(mDisplayFragment != null && mDisplayFragment.isInLayout())
+{
+mDisplayFragment.setText(msg);
+}
+else
+{
+Toast.makeText(this, "Error Sending Message", Toast.LENGTH_SHORT).show();
+}
+}
+}
+2) sender fragment (fragment-to-Activity)
+
+public class SendFragment extends Fragment
+{
+StartCommunication mStartCommunicationListner;
+String msg = "hi";
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+Bundle savedInstanceState) {
+// TODO Auto-generated method stub
+View mView = (View) inflater.inflate(R.layout.send_fragment, container);
+final EditText mEditText = (EditText)mView.findViewById(R.id.editText1);
+Button mButton = (Button) mView.findViewById(R.id.button1);
+mButton.setOnClickListener(new OnClickListener() {
+
+@Override
+public void onClick(View arg0) {
+// TODO Auto-generated method stub
+msg = mEditText.getText().toString();
+sendMessage();
+}
+});
+return mView;
+}
+
+interface StartCommunication
+{
+public void setComm(String msg);
+}
+
+@Override
+public void onAttach(Activity activity) {
+// TODO Auto-generated method stub
+super.onAttach(activity);
+if(activity instanceof StartCommunication)
+{
+mStartCommunicationListner = (StartCommunication)activity;
+}
+else
+throw new ClassCastException();
+
+}
+
+public void sendMessage()
+{
+mStartCommunicationListner.setComm(msg);
+}
+
+}
+3) receiver fragment (Activity-to-fragment)
+
+    public class DisplayFragment extends Fragment
+{
+View mView;
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+Bundle savedInstanceState) {
+// TODO Auto-generated method stub
+mView = (View) inflater.inflate(R.layout.display_frgmt_layout, container);
+return mView;
+}
+
+void setText(String msg)
+{
+TextView mTextView = (TextView) mView.findViewById(R.id.textView1);
+mTextView.setText(msg);
+}
+
+}
+

@@ -1,0 +1,416 @@
+﻿1. Oops concepts
+Ans. Encapsulation, Inheritance, Polymorphism, Abstraction.
+
+	Encapsulation is the process where we hide the data and provide access to those data 
+	through public getter and setter methods.
+	Encapsulation enables data hiding, hiding irrelevant information from the users of a 
+	class and exposing only the relevant details required by the user
+	We can protect the internal state of an object by hiding its attributes from the outside
+	world (by making it private), and then exposing them through setter and getter methods.
+	Now the modifications to the object internals are only controlled through these methods.
+	
+		Ex: 
+			public class Mobile {	
+				private String manufacturer;
+				private String operating_system;
+				public String model;
+				private int cost;
+				//Constructor to set properties/characteristics of object
+				
+				Mobile(String man, String o,String m, int c){
+					this.manufacturer = man;
+					this.operating_system=o;
+					this.model=m;
+					this.cost=c;
+				}
+				
+				//Method to get access Model property of Object
+				public String getModel(){
+					return this.model;
+				}
+				// We can add other method to get access to other properties
+			}
+
+	Inheritance describes the parent child relationship between two classes. 
+	A class can get some of its characteristics from a parent class and then add more unique features of its own.
+	
+		Ex:
+			public class Parent {
+				public String parentName;  
+				public String familyName;
+
+				protected void printMyName() {
+					System.out.println(“ My name is “+ chidName+” “ +familyName);
+				}
+			}
+			
+			public class Child extends Parent {
+				public String childName;
+				public int childAge;
+				
+				//inheritance
+				protected void printMyName() {
+					System.out.println(“ My child name is “+ chidName+” “ +familyName);
+				}
+			}
+			
+	Polymorphism : The ability to define a function in multiple forms is called Polymorphism.
+	It's of two types:
+	Overloading and Overriding.
+	
+	Overloading(Compile Time Polymorphism): A class can have more than one methods with same name but with
+	different number of arguments or different types of arguments or both.
+		
+	Important:-	In the example below the class has three variance of methodA or we can
+		say methodA is polymorphic in nature since it is having three different forms. In such scenario,
+		compiler is able to figure out the method call at compile-time that’s the reason it is known
+		as compile time polymorphism.
+		
+	Ex :
+	
+		class X
+		{
+			void methodA(int num)
+			{
+				System.out.println ("methodA:" + num);
+			}
+			void methodA(int num1, int num2)
+			{
+				System.out.println ("methodA:" + num1 + "," + num2);
+			}
+			double methodA(double num) {
+				System.out.println("methodA:" + num);
+				return num;
+			}
+		}
+
+		class Y
+		{
+			public static void main (String args [])
+			{
+				X Obj = new X();
+				double result;
+				Obj.methodA(20);
+				Obj.methodA(20, 30);
+				result = Obj.methodA(5.5);
+				System.out.println("Answer is:" + result);
+			}
+		}
+		
+	Overriding - Both parent class and the child class will have the same method name but the implementation
+	will be taken from the child class. Here Boy class extends Human class. Both the classes have a common
+	method void eat(). Boy class is giving its own implementation to the eat() method or in other words it
+	is overriding the method eat().
+	
+	Ex :
+		class Human{
+			public void eat()
+			{
+				System.out.println("Human is eating");
+			}
+		}
+		class Boy extends Human{
+			public void eat(){
+				System.out.println("Boy is eating");
+			}
+			public static void main( String args[]) {
+				Boy obj = new Boy();
+				obj.eat();
+			}
+		}
+		Output:
+			Boy is eating
+			
+	Important :- Which method definition has to be loaded is decided at the runtime. Hence it is also known as runtime or
+	dynamic polymorphism.
+	
+	Abstraction refers to the ability to make a class abstract in OOP. An abstract class is one that cannot be instantiated.
+	All other functionality of the class still exists, and its fields, methods, and constructors are all accessed in the
+	same manner. You just cannot create an instance of the abstract class.
+	
+2. Difference between abstract class and interface?
+Ans. 1) Abstract class can have abstract and non-abstract methods.	
+		Interface can have only abstract methods.
+
+	2) Abstract class doesn't support multiple inheritance.	
+		Interface supports multiple inheritance.
+		
+	3) Abstract class can have final, non-final, static and non-static variables.
+		Interface has only static and final variables.
+		
+	4) Abstract class can have static methods, main method and constructor.
+		Interface can't have static methods, main method or constructor.
+		
+	5) Abstract class can provide the implementation of interface.
+		Interface can't provide the implementation of abstract class.
+		
+	6) The abstract keyword is used to declare abstract class.
+		The interface keyword is used to declare interface.
+		
+	7) Example of abstract:
+			public abstract class Shape{
+				public abstract void draw();
+			}
+		
+		Example of interface:
+			public interface Drawable{
+				void draw();
+			}
+
+3. What is Singleton Class?
+Ans. The Singleton's purpose is to control object creation, limiting the number of objects to one only.
+Since there is only one Singleton instance, any instance fields of a Singleton will occur only once per
+class, just like static fields. Singletons often control access to resources such as database connections or sockets.
+
+For example, if you have a license for only one connection for your database or your JDBC driver has
+trouble with multi threading, the Singleton makes sure that only one connection is made or that only
+one thread can access the connection at a time.
+
+Ex:
+	// File Name: Singleton.java
+	public class Singleton {
+		private static Singleton singleton = new Singleton( );
+   
+		/* A private Constructor prevents any other 
+			* class from instantiating.
+		*/
+		private Singleton(){ }
+   
+		/* Static 'instance' method */
+		public static Singleton getInstance( ) {
+			return singleton;
+		}
+		
+		/* Other methods protected by singleton-ness */
+		protected static void demoMethod( ) {
+			System.out.println("demoMethod for singleton"); 
+		}
+	}
+	
+	Here is the main program file where we will create singleton object:
+
+	// File Name: SingletonDemo.java
+	public class SingletonDemo {
+		public static void main(String[] args) {
+			Singleton tmp = Singleton.getInstance( );
+			tmp.demoMethod( );
+		}
+	}
+
+	This would produce the following result −
+		demoMethod for singleton
+		
+4. Difference between arraylist and vector?
+Ans. 1) ArrayList is not synchronized.	
+		Vector is synchronized.
+		
+	2) ArrayList increments 50% of current array size if number of element exceeds from its capacity.
+		Vector increments 100% means doubles the array size if total number of element exceeds than its capacity.
+		
+	3) ArrayList is not a legacy class, it is introduced in JDK 1.2.	
+		Vector is a legacy class.
+		
+	4) ArrayList is fast because it is non-synchronized.
+		Vector is slow because it is synchronized i.e. in multithreading environment, it will hold the other threads
+		in runnable or non-runnable state until current thread releases the lock of object.
+		
+	5) ArrayList uses Iterator interface to traverse the elements.
+		Vector uses Enumeration interface to traverse the elements. But it can use Iterator also.
+		
+	Ex of arraylist:
+		class TestArrayList21{    
+			public static void main(String args[]){    
+				List<String> al=new ArrayList<String>();//creating arraylist    
+				al.add("Sonoo");//adding object in arraylist    
+				al.add("Michael");    
+				al.add("James");    
+				al.add("Andy");    
+			
+				//traversing elements using Iterator  
+				Iterator itr=al.iterator();  
+				while(itr.hasNext()){  
+					System.out.println(itr.next());  
+				}    
+			}    
+		}    
+		
+	Ex of Vector:
+		class TestVector1{      
+			public static void main(String args[]){      
+				Vector<String> v=new Vector<String>();//creating vector  
+				v.add("umesh");//method of Collection  
+				v.addElement("irfan");//method of Vector  
+				v.addElement("kumar");  
+				
+				//traversing elements using Enumeration  
+				Enumeration e=v.elements();  
+				while(e.hasMoreElements()){  
+					System.out.println(e.nextElement());  
+				}  
+			}      
+		}    
+		
+5. Difference between hashmap and hashtable?
+Ans. 1) HashMap is non synchronized. It is not-thread safe and can't be shared between many threads without
+		proper synchronization code.	
+		Hashtable is synchronized. It is thread-safe and can be shared with many threads.
+		
+	2) HashMap allows one null key and multiple null values.
+		Hashtable doesn't allow any null key or value.
+		
+	3) HashMap is a new class introduced in JDK 1.2.
+		Hashtable is a legacy class.
+		
+	4) HashMap is fast.
+		Hashtable is slow.
+		
+	5) We can make the HashMap as synchronized by calling this code
+		Map m = Collections.synchronizedMap(hashMap);
+		Hashtable is internally synchronized and can't be unsynchronized.
+		
+	6) HashMap is traversed by Iterator.
+		Hashtable is traversed by Enumerator and Iterator.
+		
+	7) Iterator in HashMap is fail-fast.
+		Enumerator in Hashtable is not fail-fast.
+		
+	8) HashMap inherits AbstractMap class.
+		Hashtable inherits Dictionary class.
+
+6. Why multiple inheritance is not possible in Java?
+Ans. We have two classes B and C inheriting from A. Assume that B and C are overriding an inherited method
+and they provide their own implementation. Now D inherits from both B and C doing multiple inheritance.
+D should inherit that overridden method, which overridden method will be used? Will it be from B or C?
+Here we have an ambiguity.
+
+This can be overcome by interface. Since, interface does not provide implementation there won't be any 
+reason for the ambiguity to arise. Even if the two interfaces have same method "add". The child class which
+implements both the interfaces can provide the child class interface and there will be no ambiguity.
+
+7. Difference between static and final?
+Ans. final -
+
+	1)When we apply "final" keyword to a variable,the value of that variable remains constant.
+	(or) Once we declare a variable as final.the value of that variable cannot be changed.
+
+	2)It is useful when a variable value does not change during the life time of a program
+
+	static -
+
+	1)when we apply "static" keyword to a variable ,it means it belongs to class.
+	2)When we apply "static" keyword to a method,it means the method can be accessed without creating any instance of the class
+	
+8. Difference between error and exception?
+Ans. Both Error and Exception are derived from java.lang.Throwable in Java
+
+	java.lang.Error represent errors which are generally can not be handled and usually refer catastrophic failure
+	e.g. running out of System resources, some examples of Error in Java are java.lang.OutOfMemoryError or
+	Java.lang.NoClassDefFoundError and java.lang.UnSupportedClassVersionError. 
+
+	On the other hand java.lang.Exception represent errors which can be catch and dealt 
+	e.g. IOException which comes while performing I/O operations i.e. reading files and directories 
+
+
+	An Error "indicates serious problems that a reasonable application should not try to catch." 
+
+	while 
+
+	An Exception "indicates conditions that a reasonable application might want to catch." 
+
+9. Types of exceptions?
+Ans. Two types checked and unchecked exceptions.
+
+	Checked: are the exceptions that are checked at compile time. If some code within a method
+	throws a checked exception, then the method must either handle the exception or it must specify
+	the exception using throws keyword.
+	
+	Ex.	ClassNotFoundException - Class not found.
+		IllegalAccessException - Access to a class is denied.
+		InstantiationException - Attempt to create an object of an abstract class or interface.
+		NoSuchFieldException - A requested field does not exist.
+		NoSuchMethodException - A requested method does not exist.
+		
+	Unchecked are the exceptions that are not checked at compiled time. In C++, all exceptions are unchecked,
+	so it is not forced by the compiler to either handle or specify the exception. It is up to the programmers
+	to be civilized, and specify or catch the exceptions.
+	In Java exceptions under Error and RuntimeException classes are unchecked exceptions, everything else under
+	throwable is checked.
+	
+	Ex. IndexOutOfBoundsException - Some type of index is out-of-bounds.
+		NegativeArraySizeException - Array created with a negative size.
+		NullPointerException - Invalid use of a null reference.
+		NumberFormatException - Invalid conversion of a string to a numeric format.
+		
+10. Difference between final finally and finalize?
+Ans. final: final is a keyword. The variable declared as final should be initialized only once and
+		cannot be changed. Java classes declared as final cannot be extended. Methods declared as final
+		cannot be overridden. 
+		
+	finally: finally is a block. The finally block always executes when the try block exits. This ensures 
+	that the finally block is executed even if an unexpected exception occurs. But finally is useful for
+	more than just exception handling - it allows the programmer to avoid having clean up code accidentally
+	bypassed by a return, continue, or break. Putting cleanup code in a finally block is always a good practice,
+	even when no exceptions are anticipated. 
+	
+	finalize: finalize is a method. Before an object is garbage collected, the runtime system calls its finalize()
+	method. You can write system resources release code in finalize() method before getting garbage collected.
+
+
+
+11.What’s the difference between equals() and ==?
+
+In Java, when the “==” operator is used to compare 2 objects, it checks to see if the objects refer to the same place in memory. In other words, it checks to see if the 2 object names are basically references to the same memory location. A very simple example will help clarify this:
+
+
+String obj1 = new String("xyz");
+
+String obj2 = new String("xyz");
+
+if(obj1 == obj2)
+   System.out.println("obj1==obj2 is TRUE");
+else
+  System.out.println("obj1==obj2 is FALSE");
+    
+
+Take a guess at what the code above will output. Did you guess that it will output obj1==obj2 is TRUE? Well, if you did, then you are actually wrong. Even though the strings have the same exact characters (“xyz”), The code above will actually output:
+
+ obj1==obj2 is FALSE
+The “==” operator compares the objects’ location(s) in memory
+
+Are you confused? Well, let us explain further: as we mentioned earlier, the “==” operator is actually checking to see if the string objects (obj1 and obj2) refer to the exact same memory location. In other words, if both obj1 and obj2 are just different names for the same object then the “==” operator will return true when comparing the 2 objects. Another example will help clarify this:
+
+String obj1 = new String("xyz");
+
+// now obj2 and obj1 reference the same place in memory
+String obj2 = obj1;
+
+if(obj1 == obj2)
+   System.out.printlln("obj1==obj2 is TRUE");
+else
+  System.out.println("obj1==obj2 is FALSE");
+
+Note in the code above that obj2 and obj1 both reference the same place in memory because of this line: “String obj2 = obj1;”. And because the “==” compares the memory reference for each object, it will return true. And, the output of the code above will be:
+
+
+
+
+An example of the equals() method being overriden
+
+The Java String class actually overrides the default equals() implementation in the Object class – and it overrides the method so that it checks only the values of the strings, not their locations in memory. This means that if you call the equals() method to compare 2 String objects, then as long as the actual sequence of characters is equal, both objects are considered equal. Here is an example that will help clarify this:
+
+String obj1 = new String("xyz");
+
+String obj2 = new String("xyz");
+
+if(obj1.equals(obj2))
+   System.out.printlln("obj1==obj2 is TRUE");
+else
+  System.out.println("obj1==obj2 is FALSE");
+
+
+This code will output the following:
+
+obj1==obj2 is TRUE
+As we discussed, Java’s String class overrides the equals() method to compare the characters in a string. This means that the comparison between the 2 String objects returns true since they both hold the string “xyz”. It should now be clear what the difference is between the equals() method and the “==” operator.
+
+

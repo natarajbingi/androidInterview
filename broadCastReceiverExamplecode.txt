@@ -1,0 +1,285 @@
+﻿
+
+
+The Android system uses broadcasts messages (often are called Intents or Events) to transfer information to applications.
+ The Broadcasts can be sent either by Android apps or, most commonly, by the system itself. There are many system generated events that Intent 
+class defines for receiving broadcasts, which some of them you can find in the Standard Broadcast Actions of Android Content. In this tutorial we are 
+going to show you step by step how to create a BroadcastReceiver that receives a custom Intent, which contains data that the user gave from the screen.
+ 
+ 
+ 
+ 
+ 
+For this tutorial, we will use the following tools in a Windows 64-bit platform:
+JDK 1.7
+Eclipse 4.2 Juno
+Android SDK 4.4
+1. Create a New Android Application Project
+
+01
+package com.javacodegeeks.android.broadcastreceiverstest;
+02
+ 
+03
+import android.content.BroadcastReceiver;
+04
+import android.content.Context;
+05
+import android.content.Intent;
+06
+import android.widget.Toast;
+07
+ 
+08
+public class MyBroadcastReceiver extends BroadcastReceiver{
+09
+ 
+10
+    @Override
+11
+    public void onReceive(Context context, Intent intent) {
+12
+        // TODO Auto-generated method stub
+13
+ 
+14
+        // Extract data included in the Intent
+15
+        CharSequence intentData = intent.getCharSequenceExtra("message");  
+16
+        Toast.makeText(context, "Javacodegeeks received the Intent's message: "+intentData, Toast.LENGTH_LONG).show();
+17
+    }
+18
+ 
+19
+}
+
+package com.javacodegeeks.android.broadcastreceiverstest;
+02
+ 
+03
+import com.javacodegeeks.android.broadcastreceiverstest.R;
+04
+ 
+05
+import android.os.Bundle;
+06
+import android.app.Activity;
+07
+import android.content.Intent;
+08
+import android.view.Menu;
+09
+import android.view.View;
+10
+import android.widget.EditText;
+11
+ 
+12
+public class MainActivity extends Activity {
+13
+ 
+14
+    @Override
+15
+    protected void onCreate(Bundle savedInstanceState) {
+16
+        super.onCreate(savedInstanceState);
+17
+        setContentView(R.layout.activity_main);
+18
+    }
+19
+ 
+20
+    @Override
+21
+    public boolean onCreateOptionsMenu(Menu menu) {
+22
+        // Inflate the menu; this adds items to the action bar if it is present.
+23
+        getMenuInflater().inflate(R.menu.main, menu);
+24
+        return true;
+25
+    }
+26
+ 
+27
+    public void broadcastCustomIntent(View view)
+28
+    {
+29
+       Intent intent = new Intent("MyCustomIntent");
+30
+ 
+31
+       EditText et = (EditText)findViewById(R.id.extraIntent);
+32
+       // add data to the Intent
+33
+       intent.putExtra("message", (CharSequence)et.getText().toString());
+34
+       intent.setAction("com.javacodegeeks.android.A_CUSTOM_INTENT");
+35
+       sendBroadcast(intent);
+36
+    }
+37
+ 
+38
+}
+As we can see from the code above, at the broadcastCustomIntent(View view) method we generate an Intent and we put into it an extra field, called message.
+ The value of this field is taken from an EditText (id=extraIntent) in the layout of the app. The error you will notice is because we didn’t define the
+ EditText yet.
+4. Register BroadcastReceiver
+We should define our broadcast receiver and register the above intent (com.javacodegeeks.android.A_CUSTOM_INTENT) in the AndroidManifest.xml file. 
+That’s the way the BroadcastReceiver and the Intents get linked. If the user presses the button, then the MyBroadcastReceiver will be notified. 
+Generally, we can add many intents, but we have to register each one in our AndroidManifest.xml file using <receiver> … </receiver> tags.
+To add our custom Intent, open AndroidManifest.xml file, at the last tab – named “AndroidManifest.xml” – and paste the following code.
+AndroidManifest.xml:
+01
+<?xml version="1.0" encoding="utf-8"?>
+02
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+03
+    package="com.javacodegeeks.android.broadcastreceiverstest"
+04
+    android:versionCode="1"
+05
+    android:versionName="1.0" >
+06
+ 
+07
+    <uses-sdk
+08
+        android:minSdkVersion="19"
+09
+        android:targetSdkVersion="19" />
+10
+ 
+11
+    <application
+12
+        android:allowBackup="true"
+13
+        android:icon="@drawable/ic_launcher"
+14
+        android:label="@string/app_name"
+15
+        android:theme="@style/AppTheme" >
+16
+        <activity
+17
+            android:name="com.javacodegeeks.android.broadcastreceiverstest.MainActivity"
+18
+            android:label="@string/app_name" >
+19
+            <intent-filter>
+20
+                <action android:name="android.intent.action.MAIN" />
+21
+ 
+22
+                <category android:name="android.intent.category.LAUNCHER" />
+23
+            </intent-filter>
+24
+        </activity>
+25
+ 
+26
+        <receiver android:name="MyBroadcastReceiver">
+27
+                <intent-filter>
+28
+                        <action android:name="com.javacodegeeks.android.A_CUSTOM_INTENT">
+29
+                        </action>
+30
+                </intent-filter>
+31
+     </receiver>
+32
+    </application>
+33
+</manifest>
+5. User Interface
+In this app, we want an android user to broadcast the message, so we make a simple user interface. We create an editText and a button in the res/layout/activity_main.xml file. As we said above, we use the value of the editText in order to put data in the Intent. Also, we connect the button with the broadcastCustomIntent(View view) function, so when the button is been pressed, the function is enabled.
+Open the res/layout/activity_main.xml file and choose the “activity_main.xml” tab. Then paste the following code.
+activity_main.xml:
+01
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+02
+    xmlns:tools="http://schemas.android.com/tools"
+03
+    android:layout_width="match_parent"
+04
+    android:layout_height="match_parent"
+05
+    android:paddingBottom="@dimen/activity_vertical_margin"
+06
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+07
+    android:paddingRight="@dimen/activity_horizontal_margin"
+08
+    android:paddingTop="@dimen/activity_vertical_margin"
+09
+    tools:context=".MainActivity" >
+10
+ 
+11
+    <EditText android:id="@+id/extraIntent"
+12
+        android:layout_width="fill_parent"
+13
+        android:layout_height="wrap_content"
+14
+        android:hint="@string/sendMessage" />
+15
+ 
+16
+   <Button
+17
+       android:id="@+id/btnStartBroadcast"
+18
+       android:layout_width="fill_parent"
+19
+       android:layout_height="wrap_content"
+20
+       android:layout_alignParentLeft="true"
+21
+       android:layout_below="@+id/extraIntent"
+22
+       android:onClick="broadcastCustomIntent"
+23
+       android:text="@string/myBroadcastIntent" />
+24
+ 
+25
+</RelativeLayout>
+You will notice an error in the following lines of that file.
+1
+android:hint="@string/sendMessage"
+2
+android:text="@string/myBroadcastIntent"
+That is happening because we didn’t define the strings myBroadcastIntent and sendMessage.
+To solve these problems, go to res/values/strings.xml file at the “strings.xml” tab, as shown in the image below.
+stringsXml_file
+Then paste the following code.
+strings.xml:
+1
+<?xml version="1.0" encoding="utf-8"?>
+2
+<resources>
+3
+        <string name="app_name">BroadcastReceiversTest</string>
+4
+        <string name="action_settings">Settings</string>
+5
+        <string name="sendMessage">Write a message to broadcast!</string>
+6
+        <string name="myBroadcastIntent">Broadcast an Intent now...</string>
+7
+</resources>

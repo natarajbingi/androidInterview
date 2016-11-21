@@ -1,0 +1,218 @@
+
+
+Canceling an AsyncTask using the back button
+After the last post about AsyncTask, there is a pending task to complete the example. A task running in background must be canceled if the user demand it. Thus, this is a good practice promoted by Google. Applications must be responsives. As well as canceling a task, we are going to learn how to capture the back button. AsyncTask will be canceled when back button is pressed by the user.
+
+For capturing back button since Android 2.0 (Api level 5), Google has implemented a new method in Activity class which must be overridden. This method is onBackPressed(). In earlier versions, back button is captured with method onKeyDown() and is identified checking if key received as parameter is KeyEvent.KEYCODE_BACK.
+
+So, in ProgressBarExampleActivity class from the last post we need two changes:
+Add onBackPressed() method.
+Set ProgressBarAsyncTask class as member of the class to be cancelled from onBackPressed() method.
+
+
+public class ProgressBarExampleActivity extends Activity {
+  
+   private static final String LOG_TAG = "PB_EXAMPLE";
+   private EditText etNumSecondsM;
+   private EditText etSecondsProgressedM;
+  
+   private Button bExitM;
+   private Button bExecuteM;
+   private ProgressBar pbDefaultM;
+   private ProgressBarAsyncTask pbTaskM = null;
+  
+   /** Called when the activity is first created. */
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.main);
+      drawGUI();
+   }
+ 
+   /** Called when user press the back button */
+   @Override
+   public void onBackPressed()
+   {
+      Log.d(LOG_TAG, "Cancelling task");
+ 
+      if( pbTaskM != null)
+      {
+         pbTaskM.cancel( false);
+      }
+   }
+  
+   public void drawGUI()
+   {
+      Log.d(LOG_TAG, "Creating Graphic Interface");
+      setContentView(R.layout.main);
+         
+      //Text Editors
+      etNumSecondsM = (EditText) findViewById(R.id.etNumSeconds);
+      etSecondsProgressedM = (EditText) findViewById( R.id.etSecondProgressed);
+         
+      //Buttons
+      bExecuteM = (Button) findViewById(R.id.bExecute); 
+      bExitM = (Button) findViewById(R.id.bExit);
+         
+      //Progress Bar
+      pbDefaultM = (ProgressBar) findViewById( R.id.pbDefault);    
+         
+      // When the execution button is pressed, the AsyncTask is created and
+      // executed.
+      bExecuteM.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+               pbTaskM = new ProgressBarAsyncTask( pbDefaultM, etSecondsProgressedM);
+               pbTaskM.execute( new Integer( etNumSecondsM.getText().toString()));
+            }
+      });
+ 
+      bExitM.setOnClickListener(new View.OnClickListener() {
+         public void onClick(View view) {
+             exit( RESULT_OK);
+         }
+      });  
+    }
+     
+    public void exit( int theResult)
+    {
+       setResult( theResult);
+       finish();
+    }
+}
+
+In the ProgressBarAsyncTask class we have to do next things:
+
+Override onCancelled() method for resetting controls as we did in onPostExecute() method, because it will not be called after the cancellation.
+In doInBackground() method call to isCancelled() method at the end of every iteration, to check if the task has been canceled and exit the loop.
+ 
+/**
+ * ProgressBarAsyncTask extends from AsyncTask class. It is a template that 
+ * is defined as follows:
+ * 
+ *      AsyncTask< InitialTaskParamsType, ProgressType, ResultTaskType>      
+ *      
+ */
+public class ProgressBarAsyncTask extends AsyncTask<integer, boolean="" integer,=""> {
+ 
+   private static final String LOG_TAG = "PB_ASYNC_TASK";
+   private ProgressBar pbM;
+   private EditText teSecondsProgressedM;
+    
+   /**
+    * The parameters in the constructor of the class are the controls from the
+    * main activity that we will update as the background work is progressing.
+    *  
+    * @param pb: the progress bar control.
+    * @param secondProgressed: an edit text with the percentage of seconds 
+    *                          progressed.
+    */
+    public ProgressBarAsyncTask(ProgressBar pb, EditText secondProgressed) {
+      Log.d(LOG_TAG, "Constructor");
+   
+      pbM = pb;
+      teSecondsProgressedM = secondProgressed;
+    }
+ 
+    /**
+     * This method will be called before the execution of the task. Here we 
+     * are activating the visibility of the progress controls of the main
+     * activity.
+     */
+    @Override
+    protected void onPreExecute() {
+      Log.d(LOG_TAG, "Pre-Execute");
+ 
+      super.onPreExecute();
+      pbM.setVisibility( View.VISIBLE);
+      teSecondsProgressedM.setVisibility( View.VISIBLE);
+    }
+ 
+    /**
+     * This method will be called after the invocation of the 
+     * publishProgress( progress) method in the background task. Here is where
+     * we update the progress controls.
+     * 
+     * @param progress: the amount of progress of the background task
+     */
+    @Override
+    protected void onProgressUpdate(Integer... progress) {
+      Log.d(LOG_TAG, "Progress Update: " + progress[0].toString());
+ 
+      super.onProgressUpdate( progress[0]);  
+      pbM.setProgress( progress[0]);
+      teSecondsProgressedM.setText( progress[0].toString());
+    }
+  
+    /**
+     * This method is called after the execution of the background task. Here
+     * we reset the progress controls and set their visible property to 
+     * invisible again, to hide them.
+     * 
+     * @param result: is the result of the background task, and it is passed to
+     *                this method with de result returned in the 
+     *                doInBackGroundMethod()
+     */
+    @Override
+    protected void onPostExecute(Boolean result) {
+       Log.d(LOG_TAG, "Post-Execute: " + result);
+   
+       super.onPostUpdate( result);
+       pbM.setVisibility( View.INVISIBLE);
+       teSecondsProgressedM.setVisibility( View.INVISIBLE);
+       teSecondsProgressedM.setText("");
+       pbM.setProgress(0);
+    }
+ 
+    /**
+     * This method is called when the AsyncTask is canceled. When this method
+     * is called, controls are reset to be used again. 
+     */
+    @Override
+    protected void onCancelled(){
+      Log.d(LOG_TAG, "onCancelled");
+      
+      super.onCancelled();   
+      pbM.setVisibility( View.INVISIBLE);
+      teSecondsProgressedM.setVisibility( View.INVISIBLE);
+      teSecondsProgressedM.setText("");
+      pbM.setProgress(0);
+    }
+ 
+    /**
+     * This method is called for executing the background task in the AsyncTask.
+     * For this tutorial we are only sleeping the thread for the number of 
+     * seconds passed as parameter of the function.
+     * 
+     * @param numSeconds: life of the task
+     * @return the result of the background task
+     */
+    @Override
+    protected Boolean doInBackground(Integer... numSeconds) {
+      Log.d(LOG_TAG, "doInBackground: " + numSeconds[0]);
+   
+      try {  
+        int totalSecs = numSeconds[0].intValue();
+        Log.d(LOG_TAG, "Total SECS: " + totalSecs);
+    
+        for (int i = 1; i <= totalSecs; i++) {
+           Log.d(LOG_TAG, "Sleeping " + i);
+           Thread.sleep(1000);
+     
+           float percentage = ((float)i / (float)totalSecs) * 100;
+           Log.d(LOG_TAG, "Percentage of progress: " + percentage);
+     
+           publishProgress( new Float( percentage).intValue());
+           if( isCancelled())
+           {
+              Log.d(LOG_TAG, "doInBackGround. Task cancelled");
+              return false;
+           }
+        }  
+      } catch (InterruptedException e) {
+          e.printStackTrace();
+          return false;
+      }
+ 
+      return true;
+   }
+}

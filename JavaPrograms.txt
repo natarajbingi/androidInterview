@@ -1,0 +1,338 @@
+1. Factorial program
+Ans. 
+		class Factorial
+		{
+			public static void main(String args[])
+			{
+				int n, c, fact = 1;
+ 
+				System.out.println("Enter an integer to calculate it's factorial");
+				Scanner in = new Scanner(System.in);
+				n = in.nextInt();
+ 
+				if ( n < 0 )
+					System.out.println("Number should be non-negative.");
+				else
+				{
+					for ( c = 1 ; c <= n ; c++ )
+						fact = fact*c;
+ 
+					System.out.println("Factorial of "+n+" is = "+fact);
+				}
+			}
+		}
+
+2. Fibonacci Series.
+Ans.
+		class Factorial
+		{
+			public static void main(String args[])
+			{
+				int n, c, fact = 1;
+				System.out.println("Enter an integer to calculate it's factorial");
+				Scanner in = new Scanner(System.in);
+				n = in.nextInt();
+ 
+				if ( n < 0 )
+					System.out.println("Number should be non-negative.");
+				else
+				{
+					for ( c = 1 ; c <= n ; c++ )
+						fact = fact*c;
+ 
+					System.out.println("Factorial of "+n+" is = "+fact);
+				}
+			}
+		}
+		
+3. String Reverse
+Ans.
+		class ReverseString
+		{
+			public static void main(String args[])
+			{
+				String original, reverse = "";
+				Scanner in = new Scanner(System.in);
+ 
+				System.out.println("Enter a string to reverse");
+				original = in.nextLine();
+ 
+				int length = original.length();
+ 
+				for ( int i = length - 1 ; i >= 0 ; i-- )
+					reverse = reverse + original.charAt(i);
+ 
+				System.out.println("Reverse of entered string is: "+reverse);
+			}
+		}
+		
+4. Palindrome
+Ans.
+		class StringPalindrome
+		{
+			public static void main(String args[])
+			{
+				String original, reverse = "";
+				Scanner in = new Scanner(System.in);
+ 
+				System.out.println("Enter a string to check if it is a palindrome");
+				original = in.nextLine();
+ 
+				int length = original.length();
+ 
+				for ( int i = length - 1; i >= 0; i-- )
+					reverse = reverse + original.charAt(i);
+ 
+				if (original.equals(reverse))
+					System.out.println("Entered string is a palindrome.");
+				else
+					System.out.println("Entered string is not a palindrome.");
+			}
+		}	
+		
+		class Palindrome{ 
+			public static void main(String args[]){ 
+				System.out.print("Enter Number: ");
+				Scanner read = new Scanner(System.in);
+				int num = read.nextInt();
+				int n = num;
+				
+				//reversing number
+				int rev=0,rmd; 
+				while(num > 0) 
+				{ 
+					rmd = num % 10; 
+					rev = rev * 10 + rmd; 
+					num = num / 10; 
+				} 
+				if(rev == n) 
+					System.out.println(n+" is a Palindrome Number!"); 
+				else 
+					System.out.println(n+" is not a Palindrome Number!"); 
+			} 
+		}
+		
+5. Star program
+Ans.
+	class Stars {
+		public static void main(String[] args) {
+			int row, numberOfStars;
+ 
+			for (row = 1; row <= 10; row++) {
+				for(numberOfStars = 1; numberOfStars <= row; numberOfStars++) {
+					System.out.print("*");
+				}
+				System.out.println(); // Go to next line
+			}
+		}
+	}
+	
+6. Prime number
+Ans.
+	public class MyPrimeNumCheck {
+		public boolean isPrimeNumber(int number){
+			for(int i=2; i<=number/2; i++){
+				if(number % i == 0){
+					return false;
+				}
+			}
+			return true;
+		}
+		public static void main(String a[]){
+			MyPrimeNumCheck mpc = new MyPrimeNumCheck();
+			System.out.println("Is 17 prime number? "+mpc.isPrimeNumber(17));
+			System.out.println("Is 19 prime number? "+mpc.isPrimeNumber(19));
+			System.out.println("Is 15 prime number? "+mpc.isPrimeNumber(15));
+		}
+	}
+
+7. Even or odd
+Ans.
+	class OddOrEven
+	{
+		public static void main(String args[])
+		{
+			int x;
+			System.out.println("Enter an integer to check if it is odd or even ");
+			Scanner in = new Scanner(System.in);
+			x = in.nextInt();
+ 
+			if ( x % 2 == 0 )
+				System.out.println("You entered an even number.");
+			else
+				System.out.println("You entered an odd number.");
+		}
+	}
+
+
+
+class Fibonacci
+{
+	public static void main(String args[])
+	{		
+		int prev, next, sum, n;
+		prev=next=1
+		for(n=1;n<=10;n++)
+		{
+			System.out.println(prev);
+			sum=prev+next;
+			prev=next;
+			next=sum;
+		}
+	}
+}
+
+
+
+Repeted Words Count
+
+	 public static void main(String[] args){
+
+	   countWords("apple banna apple fruit fruit apple hello hi hi hello hi");
+
+	   }
+
+	   static void countWords(String st){
+	     //split text to array of words
+	     String[] words=st.split("\\s");
+	   //frequency array
+	     int[] fr=new int[words.length];
+	   //init frequency array
+	     for(int i=0;i<fr.length;i++)
+	       fr[i]=0;
+	     //count words frequency
+	     for(int i=0;i<words.length;i++){
+	       for(int j=0;j<words.length;j++){
+	         if(words[i].equals(words[j])) 
+	           {
+	             fr[i]++;
+
+	                }
+	            }
+	           }
+
+	     //clean duplicates
+	       for(int i=0;i<words.length;i++){
+	         for(int j=0;j<words.length;j++){
+	           if(words[i].equals(words[j])) 
+	           {
+	             if(i!=j) words[i]="";
+
+	           }
+	     }
+	     }
+
+	//show the output
+
+	int total=0;
+	System.out.println("Deplicate words:");
+	for(int i=0;i<words.length;i++){
+
+	if(words[i]!=""){
+
+
+	System.out.println(words[i]+"="+fr[i]);
+
+	total+=fr[i];
+
+	}
+
+
+
+
+
+
+
+
+Pattren Maching PGM IPAddress
+
+package com.mkyong.regex;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+ 
+public class IPAddressValidator{
+	
+    private Pattern pattern;
+    private Matcher matcher;
+ 
+    private static final String IPADDRESS_PATTERN = 
+		"^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+		"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+		"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+		"([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+	  
+    public IPAddressValidator(){
+	  pattern = Pattern.compile(IPADDRESS_PATTERN);
+    }
+	  
+   /**
+    * Validate ip address with regular expression
+    * @param ip ip address for validation
+    * @return true valid ip address, false invalid ip address
+    */
+    public boolean validate(final String ip){		  
+	  matcher = pattern.matcher(ip);
+	  return matcher.matches();	    	    
+    }
+}
+
+"^([01]?\\d\\d?|2[0-4]\\d|25[0-5]\\."+
+"^([01]?//d//d?|2[0-4]//d|25[0-5])\\."
+
+package com.mkyong.regex;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
+ 
+/**
+ * IPAddress validator Testing
+ * @author mkyong
+ *
+ */
+public class IPAddressValidatorTest {
+ 
+	private IPAddressValidator ipAddressValidator;
+    
+	@BeforeClass
+        public void initData(){
+		ipAddressValidator = new IPAddressValidator();
+        }
+    
+	@DataProvider
+	public Object[][] ValidIPAddressProvider() {
+		return new Object[][]{
+		   new Object[] {"1.1.1.1"},new Object[] {"255.255.255.255"},
+                   new Object[] {"192.168.1.1"},new Object[] {"10.10.1.1"},
+                   new Object[] {"132.254.111.10"},new Object[] {"26.10.2.10"},
+		   new Object[] {"127.0.0.1"}
+		};
+	}
+	
+	@DataProvider
+	public Object[][] InvalidIPAddressProvider() {
+		return new Object[][]{
+		   new Object[] {"10.10.10"},new Object[] {"10.10"},
+                   new Object[] {"10"},new Object[] {"a.a.a.a"},
+                   new Object[] {"10.0.0.a"},new Object[] {"10.10.10.256"},
+		   new Object[] {"222.222.2.999"},new Object[] {"999.10.10.20"},
+                   new Object[] {"2222.22.22.22"},new Object[] {"22.2222.22.2"},
+                   new Object[] {"10.10.10"},new Object[] {"10.10.10"},	
+		};
+	}
+	
+	@Test(dataProvider = "ValidIPAddressProvider")
+	public void ValidIPAddressTest(String ip) {
+		   boolean valid = ipAddressValidator.validate(ip);
+		   System.out.println("IPAddress is valid : " + ip + " , " + valid);
+		   Assert.assertEquals(true, valid);
+	}
+	
+	@Test(dataProvider = "InvalidIPAddressProvider",
+                 dependsOnMethods="ValidIPAddressTest")
+	public void InValidIPAddressTest(String ip) {
+		   boolean valid = ipAddressValidator.validate(ip);
+		   System.out.println("IPAddress is valid : " + ip + " , " + valid);
+		   Assert.assertEquals(false, valid); 
+	}	
+}

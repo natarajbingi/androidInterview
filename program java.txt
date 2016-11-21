@@ -1,0 +1,132 @@
+﻿public class CallByValueDemo {
+
+   int data=50;
+
+   void change(int data){
+   data=data+100;//changes will be in the local variable only
+
+   }
+   public static ArrayList<String> reverse( ArrayList<String> orig )
+   {
+      ArrayList<String> reversed = new ArrayList<String>() ;
+
+      for ( int i = orig.size() - 1 ; i >= 0 ; i-- )
+      {
+       String rev="";
+          String obj = orig.get( i ) ;
+          int len=obj.length();
+          for(int j=len-1;j>=0;j-- )
+          {
+           rev+=obj.charAt (ninja) ;
+           System.out.println("before change "+rev);
+          }
+           reversed.add( rev ) ;
+
+      }
+
+
+   return reversed;
+   }
+
+   public static boolean checkAnagram(String first, String second) {
+    char[] characters = first.toCharArray();
+    StringBuilder sbSecond = new StringBuilder(second);
+    for (char ch : characters) {
+     int index = sbSecond.indexOf("" + ch);
+     if (index != -1) {
+      sbSecond.deleteCharAt(index);
+     } else {
+      return false;
+     }
+    }
+    return sbSecond.length() == 0 ? true : false;
+   }
+   public static void main(String args[]){
+    CallByValueDemo op=new CallByValueDemo();
+
+     System.out.println("before change "+op.data);
+     op.change(100);
+     System.out.println("after change "+op.data);
+     ArrayList<String> passValue=new ArrayList<String>();
+     passValue.add("elk");
+     passValue.add("bat");
+     passValue.add("cat");
+     passValue.add("dog");
+     passValue.add("ape");
+     ArrayList<String> result=reverse(passValue);
+     for(String val:result)
+     {
+      System.out.println(""+val);
+     }
+     int []second={2,11,8,20,6,19};
+
+     int res=secondLar(second);
+     System.out.println("second highest number: "
+     + res);
+     System.out.println(checkAnagram("kep","peek"));
+
+     /*Singletone tmp = Singletone.getInstance( );
+        tmp.demoMethod( );*/
+
+
+
+
+   }
+  public static int secondLar(int[] second)
+  {
+   int highest = 0;
+   int second_highest = 0;
+
+   if (second.length > 2) {
+
+    for (int index = 0; index <= second.length-1; index++) {
+     if (second[index] > highest) {
+      second_highest = highest;
+      highest = second[index];
+     }
+     else if(second[index] > second_highest)
+     {
+      second_highest=second[index];
+     }
+
+
+    }
+
+   }
+   return second_highest;
+
+  }
+
+  boolean substring(String first,String Second)
+  {
+   int length=first.length();
+   String str2="";
+   for(int c=0;c<length;c++)
+   {
+
+    for(int i=0;i<length-c;i++)
+    {
+     str2=first.substring(c, c+i);
+     if(str2.equals(Second))
+      return true;
+     else
+      break;
+    }
+   }
+   return false;
+
+  }
+  public static int[] reverseArray(int[] pArray) {
+   int length = pArray.length / 2;
+   for (int index = 0; index < length; index++) {
+    int temp = pArray[index];
+    pArray[index] = pArray[pArray.length - 1 - index];
+    pArray[pArray.length - 1 - index] = temp;
+   }
+   for(int res:pArray)
+    System.out.println(""+res);
+   return pArray;
+
+  }
+
+}

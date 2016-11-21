@@ -1,0 +1,192 @@
+
+COMPILETIMEERROR.com
+Search
+
+ 
+HOME
+ANDROID TUTORIALS 
+JAVA TUTORIALS 
+WINDOWS PHONE TUTORIALS
+C# .NET TUTORIALS
+ABOUT US
+WRITE FOR US AND EARN MONEY
+Introduction to Services in Android with example
+             Services in Android is a component that runs in the background without any user interaction or interface. Unlike Activities services does not have any graphical interface. Services run invisibly performing long running tasks - doing Internet look ups, playing music, triggering notifications etc.,
+              Services run with a higher priority than inactive or invisible activities and therefore it is less likely that the Android system terminates them for resource management. The only reason Android will stop a Service prematurely is to provide additional resources for a foreground component usually an Activity. When this happens, your Service can be configured to restart automatically. 
+
+Creating a Service
+               Create a new class that extends Service. Below is the code snippet.
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+
+public class MyService extends Service {
+ public void onCreate() {
+  super.onCreate();
+  // This method is invoked when the service is called.
+ }
+ public IBinder onBind() {
+  super.onCreate();
+  // A client or activity is binded to service
+ }
+}
+
+Services takes Two Forms
+
+Started
+         A Service is started when a application component such as an activity invokes it by calling startService().
+ Once started, a service can run in the background indefinitely, even if the component that started it is destroyed
+
+Bound
+               A service is "bound" when an application component binds to it by calling bindService(). 
+A bound service offers a client-server interface that allows components to interact with the service, send requests, get results, 
+and even do so across processes with inter-process communication.
+
+Add the service to AndroidManifest.xml
+              Last but not the least, don't miss to add your service to android manifest file. If you don't add this service to manifest, 
+you will not get any errors as well output.
+
+Example code :
+            Lets see an simple example to create, start and stop android service. For this example I have created a layout file activity_main.xml, 
+MainActivity and MyService class files. Refer the project structure for clarification. In my MainActivity I have just started and stopped 
+MyService class through Intent on button click event. And in MyService class I have display Toast messages for onCreate(), onStart(), onDestroy() events.
+
+
+Project Structure
+
+activity_main.xml
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="63dp"
+        android:onClick="stopService"
+        android:text="Stop Service" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/button2"
+        android:layout_marginTop="37dp"
+        android:onClick="startService"
+        android:text="Start Service" />
+
+</RelativeLayout>
+
+
+MainActivity.java
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.Intent;
+import android.view.Menu;
+import android.view.View;
+
+public class MainActivity extends Activity {
+
+  @Override
+ protected void onCreate(Bundle savedInstanceState) {
+  super.onCreate(savedInstanceState);
+  setContentView(R.layout.activity_main);
+ }
+
+  // Start the service
+ public void startService(View view) {
+  startService(new Intent(this, MyService.class));
+ }
+
+  // Stop the service
+ public void stopService(View view) {
+  stopService(new Intent(this, MyService.class));
+ }
+
+  @Override
+ public boolean onCreateOptionsMenu(Menu menu) {
+
+   getMenuInflater().inflate(R.menu.activity_main, menu);
+  return true;
+ }
+
+}
+
+
+MyService.java
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.widget.Toast;
+
+public class MyService extends Service {
+ public MyService() {
+ }
+ @Override
+ public IBinder onBind(Intent intent) {
+  throw new UnsupportedOperationException("Not yet implemented");
+ }
+ @Override
+ public void onCreate() {
+  Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
+ }
+
+  @Override
+ public void onStart(Intent intent, int startId) {
+  // Perform your long running operations here.
+  Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+ }
+
+  @Override
+ public void onDestroy() {
+  Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
+ }
+
+}
+
+
+AndroidManifest.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.androidservice"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.example.androidservice.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".MyService"
+            android:enabled="true" />
+    </application>
+
+</manifest>
+
+
